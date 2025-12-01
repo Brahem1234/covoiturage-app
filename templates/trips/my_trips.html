@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes trajets - CovoiturageApp{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 mb-0">Mes trajets publiés</h1>
+                <a href="{% url 'create_trip' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Nouveau trajet
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-4" id="tripTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button">
+                <i class="bi bi-check-circle me-1"></i>Actifs
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button">
+                <i class="bi bi-check-all me-1"></i>Terminés
+            </button>
+        </li>
+    
+    </ul>
+
+    <div class="tab-content" id="tripTabsContent">
+        <!-- Active Trips -->
+        <div class="tab-pane fade show active" id="active" role="tabpanel">
+            <div class="row g-4">
+                {% for trip in trips %}
+                {% if trip.status == 'active' %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="modern-trip-card">
+                        <div class="trip-card-header">
+                            <span class="badge bg-success">Actif</span>
+                            <span class="badge bg-light text-dark">{{ trip.available_seats }} 
+                                place{{trip.available_seats|pluralize }}</span>
+                        </div>
+                        <div class="trip-card-body">
+                            <div class="trip-route-display mb-3">
+                                <div class="route-item">
+                                    <i class="bi bi-record-circle text-primary"></i>
+                                    <span class="fw-600">{{ trip.departure_city }}</span>
+                                </div>
+                                <div class="route-connector"></div>
+                                <div class="route-item">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i>
+                                    <span class="fw-600">{{ trip.arrival_city }}</span>
+                                </div>
+                            </div>
+
+                            <div class="trip-details mb-3">
+                                <div class="detail-item">
+                                    <i class="bi bi-calendar-event text-muted"></i>
+                                    <span>{{ trip.departure_date|date:"d M Y" }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-clock text-muted"></i>
+                                    <span>{{ trip.departure_time|time:"H:i" }}</span>
+                                </div>
+                            </div>
+
+                            <div class="trip-price mb-3">
+                                <span class="price-label">Prix par place</span>
+                                <span class="price-value">{{ trip.price_per_seat }} DT</span>
+                            </div>
+
+                            <div class="trip-stats mb-3">
+                                <span class="stat-item">
+                                    <i class="bi bi-people text-primary"></i>
+                                    {{ trip.bookings.count }} réservation{{ trip.bookings.count|pluralize }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="trip-card-footer">
+                            <div class="btn-group w-100" role="group">
+                                <a href="{% url 'trip_detail' trip.pk %}" class="btn btn-sm btn-outline-primary"
+                                    title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'edit_trip' trip.pk %}" class="btn btn-sm btn-outline-warning"
+                                    title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'cancel_trip' trip.pk %}" class="btn btn-sm btn-outline-secondary"
+                                    title="Annuler">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                                <a href="{% url 'delete_trip' trip.pk %}" class="btn btn-sm btn-outline-danger"
+                                    title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="col-12">
+                    <div class="empty-state-card text-center py-5">
+                        <i class="bi bi-car-front display-1 text-muted mb-3"></i>
+                        <h4 class="text-muted">Aucun trajet actif</h4>
+                        <p class="text-muted">Publiez votre premier trajet pour commencer</p>
+                        <a href="{% url 'create_trip' %}" class="btn btn-primary mt-3">
+                            <i class="bi bi-plus-circle me-2"></i>Publier un trajet
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Completed Trips -->
+        <div class="tab-pane fade" id="completed" role="tabpanel">
+            <div class="row g-4">
+                {% for trip in trips %}
+                {% if trip.status == 'completed' %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="modern-trip-card opacity-75">
+                        <div class="trip-card-header">
+                            <span class="badge bg-secondary">Terminé</span>
+                        </div>
+                        <div class="trip-card-body">
+                            <h5 class="mb-2">{{ trip.departure_city }} → {{ trip.arrival_city }}</h5>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                {{ trip.departure_date|date:"d/m/Y" }}
+                            </p>
+                            <a href="{% url 'trip_detail' trip.pk %}" class="btn btn-sm btn-outline-secondary">
+                                Voir les détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Aucun trajet terminé</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Cancelled Trips -->
+        <div class="tab-pane fade" id="cancelled" role="tabpanel">
+            <div class="row g-4">
+                {% for trip in trips %}
+                {% if trip.status == 'cancelled' %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="modern-trip-card opacity-75">
+                        <div class="trip-card-header">
+                            <span class="badge bg-danger">Annulé</span>
+                        </div>
+                        <div class="trip-card-body">
+                            <h5 class="mb-2">{{ trip.departure_city }} → {{ trip.arrival_city }}</h5>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                {{ trip.departure_date|date:"d/m/Y" }}
+                            </p>
+                            <a href="{% url 'trip_detail' trip.pk %}" class="btn btn-sm btn-outline-secondary">
+                                Voir les détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Aucun trajet annulé</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-pills .nav-link {
+        border-radius: 24px;
+        padding: 0.6rem 1.5rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .nav-pills .nav-link.active {
+        background: #00aff5;
+    }
+
+    .modern-trip-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modern-trip-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+    }
+
+    .trip-card-header {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .trip-card-body {
+        padding: 1.5rem;
+        flex: 1;
+    }
+
+    .trip-route-display {
+        position: relative;
+    }
+
+    .route-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    .route-connector {
+        width: 2px;
+        height: 24px;
+        background: #dee2e6;
+        margin-left: 7px;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    .trip-details {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .trip-price {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .price-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .price-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #00aff5;
+    }
+
+    .trip-stats {
+        font-size: 0.9rem;
+    }
+
+    .stat-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .trip-card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .empty-state-card {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+        border-radius: 24px;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+    }
+</style>
+{% endblock %}

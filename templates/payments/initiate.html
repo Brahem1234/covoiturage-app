@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiement{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-credit-card me-2"></i>Paiement de la réservation
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Résumé de la réservation -->
+                    <div class="mb-4">
+                        <h5 class="text-success mb-3">Détails de la réservation</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Trajet :</strong><br>
+                                        {{ booking.trip.departure_city }} → {{ booking.trip.arrival_city }}
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Date :</strong><br>
+                                        {{ booking.trip.departure_date|date:"d F Y" }} à {{booking.trip.departure_time|time:"H:i" }}
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Places réservées :</strong><br>
+                                        {{ booking.seats_booked }}
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Montant total :</strong><br>
+                                        <span class="text-success fs-4 fw-bold">{{ booking.total_price }} DT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Formulaire de paiement -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <h5 class="text-success mb-3">
+                            <i class="bi bi-wallet2 me-2"></i>Choisissez votre mode de paiement
+                        </h5>
+
+                        <div class="payment-methods mb-4">
+                            <div class="form-check p-3 border rounded mb-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_1"
+                                    value="card" checked>
+                                <label class="form-check-label w-100" for="payment_1">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-credit-card-2-front fs-3 text-primary me-3"></i>
+                                        <div>
+                                            <strong>Carte bancaire</strong><br>
+                                            <small class="text-muted">Paiement sécurisé par carte bancaire</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="form-check p-3 border rounded mb-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_2"
+                                    value="paypal">
+                                <label class="form-check-label w-100" for="payment_2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-paypal fs-3 text-info me-3"></i>
+                                        <div>
+                                            <strong>PayPal</strong><br>
+                                            <small class="text-muted">Paiement via votre compte PayPal</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="form-check p-3 border rounded mb-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_3"
+                                    value="cash">
+                                <label class="form-check-label w-100" for="payment_3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-cash-coin fs-3 text-success me-3"></i>
+                                        <div>
+                                            <strong>Espèces</strong><br>
+                                            <small class="text-muted">Paiement en espèces au conducteur</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="form-check p-3 border rounded mb-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_4"
+                                    value="bank_transfer">
+                                <label class="form-check-label w-100" for="payment_4">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-bank fs-3 text-warning me-3"></i>
+                                        <div>
+                                            <strong>Virement bancaire</strong><br>
+                                            <small class="text-muted">Virement bancaire direct</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_notes" class="form-label">Notes (optionnel)</label>
+                            <textarea name="notes" id="id_notes" class="form-control" rows="3"
+                                placeholder="Notes ou instructions spéciales..."></textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-shield-check me-2"></i>
+                            <strong>Paiement sécurisé</strong><br>
+                            Vos informations de paiement sont protégées et cryptées.
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-lock-fill me-2"></i>Procéder au paiement
+                            </button>
+                            <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-option {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .payment-option:hover {
+        background-color: #f8f9fa;
+        border-color: #198754 !important;
+    }
+
+    .payment-option input:checked~label {
+        color: #198754;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.addEventListener('click', function () {
+            this.querySelector('input[type="radio"]').checked = true;
+        });
+    });
+</script>
+{% endblock %}

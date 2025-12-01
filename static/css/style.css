@@ -1,0 +1,5 @@
+/* Styles personnalisés pour CovoiturageApp */
+.hover-white:hover {
+    color: white !important;
+    transition: color 0.2s;
+}

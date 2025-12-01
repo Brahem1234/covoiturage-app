@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiement par carte{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-credit-card me-2"></i>Paiement par carte
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <strong>Montant à payer : {{ payment.amount }} DT</strong>
+                    </div>
+
+                    <form method="post" id="cardPaymentForm">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_card_number" class="form-label">
+                                <i class="bi bi-credit-card me-1"></i>Numéro de carte
+                            </label>
+                            {{ card_form.card_number }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_card_holder" class="form-label">
+                                <i class="bi bi-person me-1"></i>Titulaire de la carte
+                            </label>
+                            {{ card_form.card_holder }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_expiry_date" class="form-label">
+                                    <i class="bi bi-calendar-event me-1"></i>Date d'expiration
+                                </label>
+                                {{ card_form.expiry_date }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_cvv" class="form-label">
+                                    <i class="bi bi-shield-lock me-1"></i>CVV
+                                </label>
+                                {{ card_form.cvv }}
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <small><strong>Mode démo :</strong> Ceci est une simulation. Aucun paiement réel ne sera
+                                effectué.</small>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-lock-fill me-2"></i>Payer {{ payment.amount }} DT
+                            </button>
+                            <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sécurité -->
+            <div class="card border-0 bg-light mt-4">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check text-success fs-1"></i>
+                    <p class="mb-0 mt-2"><strong>Paiement 100% sécurisé</strong></p>
+                    <small class="text-muted">Vos données sont cryptées et protégées</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Traitement du paiement{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-credit-card me-2"></i>Traitement du paiement
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <strong>Montant à payer : {{ payment.amount }} DT</strong>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">Méthode de paiement sélectionnée</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    {% if payment.payment_method == 'paypal' %}
+                                    <i class="bi bi-paypal fs-3 text-info me-3"></i>
+                                    <div>
+                                        <strong>PayPal</strong>
+                                        <br>
+                                        <small class="text-muted">Paiement via votre compte PayPal</small>
+                                    </div>
+                                    {% elif payment.payment_method == 'bank_transfer' %}
+                                    <i class="bi bi-bank fs-3 text-warning me-3"></i>
+                                    <div>
+                                        <strong>Virement bancaire</strong>
+                                        <br>
+                                        <small class="text-muted">Transfert bancaire direct</small>
+                                    </div>
+                                    {% else %}
+                                    <i class="bi bi-credit-card fs-3 text-primary me-3"></i>
+                                    <div>
+                                        <strong>{{ payment.get_payment_method_display }}</strong>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">Détails de la réservation</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <strong>Trajet :</strong>
+                                    {{ payment.booking.trip.departure_city }} → {{ payment.booking.trip.arrival_city }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Date :</strong>
+                                    {{ payment.booking.trip.departure_date|date:"d F Y" }}
+                                </div>
+                                <div>
+                                    <strong>Places :</strong>
+                                    {{ payment.booking.seats_booked }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if payment.payment_method == 'paypal' %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <small><strong>Mode démo :</strong> Vous serez redirigé vers PayPal (simulation)</small>
+                    </div>
+                    {% elif payment.payment_method == 'bank_transfer' %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small><strong>Informations bancaires :</strong><br>
+                            IBAN: FR76 1234 5678 9012 3456 7890 123<br>
+                            BIC: COVOFRPP<br>
+                            Référence: {{ payment.id }}</small>
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Confirmer le paiement
+                            </button>
+                            <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sécurité -->
+            <div class="card border-0 bg-light mt-4">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check text-success fs-1"></i>
+                    <p class="mb-0 mt-2"><strong>Paiement 100% sécurisé</strong></p>
+                    <small class="text-muted">Vos données sont cryptées et protégées</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

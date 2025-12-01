@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes réservations - CovoiturageApp{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">Mes réservations</h1>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for booking in bookings %}
+        <div class="col-12">
+            <div class="booking-card {% if booking.status == 'cancelled' %}opacity-75{% endif %}">
+                <div class="row align-items-center">
+                    <!-- Trip Info -->
+                    <div class="col-md-7">
+                        <div class="d-flex align-items-start gap-3">
+                            <!-- Date Badge -->
+                            <div class="date-badge">
+                                <div class="date-day">{{ booking.trip.departure_date|date:"d" }}</div>
+                                <div class="date-month">{{ booking.trip.departure_date|date:"M" }}</div>
+                            </div>
+
+                            <!-- Route & Details -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <h5 class="mb-0">{{ booking.trip.departure_city }} <i
+                                            class="bi bi-arrow-right mx-2 text-muted"></i> {{ booking.trip.arrival_city }}</h5>
+                                    <span
+                                        class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'pending' %}bg-warning text-dark{% elif booking.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+
+                                <div class="booking-details mb-2">
+                                    <span class="detail-item">
+                                        <i class="bi bi-clock text-muted"></i>
+                                        {{ booking.trip.departure_time|time:"H:i" }}
+                                    </span>
+                                    <span class="detail-item">
+                                        <i class="bi bi-people text-muted"></i>
+                                        {{ booking.seats_booked }} place{{ booking.seats_booked|pluralize }}
+                                    </span>
+                                    {% if booking.trip.transport_type %}
+                                    <span class="detail-item">
+                                        {% if booking.trip.transport_type == 'car' %}<i
+                                            class="bi bi-car-front text-muted"></i> Voiture
+                                        {% elif booking.trip.transport_type == 'bus' %}<i
+                                            class="bi bi-bus-front text-muted"></i> Bus
+                                        {% elif booking.trip.transport_type == 'train' %}<i
+                                            class="bi bi-train-front text-muted"></i> Train
+                                        {% elif booking.trip.transport_type == 'van' %}<i
+                                            class="bi bi-truck-front text-muted"></i> Van
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="driver-info">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if booking.trip.driver.profile_picture %}
+                                        <img src="{{ booking.trip.driver.profile_picture.url }}" class="rounded-circle"
+                                            width="32" height="32" alt="">
+                                        {% else %}
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                            style="width: 32px; height: 32px;">
+                                            <i class="bi bi-person-fill text-primary"></i>
+                                        </div>
+                                        {% endif %}
+                                        <span class="text-muted small">
+                                          {{ booking.trip.driver.get_full_name|default:booking.trip.driver.username }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price & Actions -->
+                    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                        <div class="booking-price mb-3">
+                            <div class="price-amount">{{ booking.total_price }} DT</div>
+                            <small class="text-muted">Total pour {{ booking.seats_booked }} place{{ booking.seats_booked|pluralize }}</small>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-md-end flex-wrap">
+                            <a href="{% url 'trip_detail' booking.trip.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye me-1"></i>Voir le trajet
+                            </a>
+
+                            {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                            <a href="{% url 'delete_booking' booking.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i>Supprimer
+                            </a>
+                            {% endif %}
+
+                            {% if booking.status == 'pending' %}
+                            {% if not booking.payment %}
+                            <a href="{% url 'initiate_payment' booking.id %}" class="btn btn-success btn-sm">
+                                <i class="bi bi-credit-card me-1"></i>Payer
+                            </a>
+                            {% endif %}
+                            {% endif %}
+
+                            {% if booking.payment and booking.payment.status == 'completed' %}
+                            <span class="badge bg-success align-self-center px-3 py-2">
+                                <i class="bi bi-check-circle me-1"></i>Payé
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state-card text-center py-5">
+                <i class="bi bi-ticket-perforated display-1 text-muted mb-3"></i>
+                <h4 class="text-muted">Aucune réservation</h4>
+                <p class="text-muted">Vous n'avez pas encore réservé de trajet</p>
+                <a href="{% url 'search_trips' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-search me-2"></i>Rechercher un trajet
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .booking-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+    }
+
+    .booking-card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .date-badge {
+        background: linear-gradient(135deg, #00aff5 0%, #0099d6 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 0.75rem;
+        text-align: center;
+        min-width: 70px;
+    }
+
+    .date-day {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .date-month {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+    }
+
+    .booking-details {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .detail-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .driver-info {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .booking-price {
+        text-align: right;
+    }
+
+    .price-amount {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .price-amount sup {
+        font-size: 1.2rem;
+    }
+
+    .empty-state-card {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+        border-radius: 24px;
+        padding: 0.6rem 1.5rem;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+    }
+
+    .btn-outline-primary {
+        border-color: #00aff5;
+        color: #00aff5;
+        border-radius: 24px;
+    }
+
+    .btn-outline-primary:hover {
+        background: #00aff5;
+        border-color: #00aff5;
+    }
+
+    .btn-outline-danger {
+        border-radius: 24px;
+    }
+
+    .btn-success {
+        border-radius: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .booking-card {
+            padding: 1rem;
+        }
+
+        .booking-price {
+            text-align: left;
+        }
+
+        .date-badge {
+            min-width: 60px;
+            padding: 0.5rem;
+        }
+
+        .date-day {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,504 @@
+{% extends 'base.html' %}
+
+{% block title %}Rechercher un trajet - CovoiturageApp{% endblock %}
+
+{% block content %}
+<!-- Search Header -->
+<section class="search-header bg-white py-4 border-bottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <form method="get" class="search-form-compact">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="bi bi-record-circle"></i>
+                                <input type="text" name="departure_city" class="form-control" placeholder="Départ"
+                                    value="{{ request.GET.departure_city }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <input type="text" name="arrival_city" class="form-control" placeholder="Arrivée"
+                                    value="{{ request.GET.arrival_city }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-with-icon">
+                                <i class="bi bi-calendar-event"></i>
+                                <input type="date" name="departure_date" class="form-control"
+                                    value="{{ request.GET.departure_date }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="transport_type" class="form-select">
+                                <option value="">Tous</option>
+                                <option value="car" {% if request.GET.transport_type == 'car' %}selected{% endif %}>
+                                    Voiture</option>
+                                <option value="bus" {% if request.GET.transport_type == 'bus' %}selected{% endif %}>Bus
+                                </option>
+                                <option value="train" {% if request.GET.transport_type == 'train' %}selected{% endif %}>
+                                    Train</option>
+                                <option value="van" {% if request.GET.transport_type == 'van' %}selected{% endif %}>Van
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-1"></i> Rechercher
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Results Section -->
+<section class="results-section py-4">
+    <div class="container">
+        <!-- Filter Tabs -->
+        <div class="filter-tabs mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="filter-buttons d-flex gap-2">
+                    <button class="filter-btn active">
+                        Tout <span class="badge-count">{{ trips|length }}</span>
+                    </button>
+                    <button class="filter-btn">
+                        <i class="bi bi-car-front"></i> Covoiturage <span class="badge-count">{{ trips|length }}</span>
+                    </button>
+                    <button class="filter-btn">
+                        <i class="bi bi-bus-front"></i> Bus <span class="badge-count">0</span>
+                    </button>
+                    <button class="filter-btn">
+                        <i class="bi bi-train-front"></i> Train <span class="badge-count">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sort Options -->
+        <div class="sort-section mb-4 p-3 bg-white rounded">
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <span class="text-muted small fw-500">Trier par</span>
+                </div>
+                <div class="col">
+                    <div class="btn-group btn-group-sm flex-wrap" role="group">
+                        <input type="radio" class="btn-check" name="sort" id="sort-earliest" checked>
+                        <label class="btn btn-outline-secondary" for="sort-earliest">
+                            <i class="bi bi-clock me-1"></i>Départ le plus tôt
+                        </label>
+
+                        <input type="radio" class="btn-check" name="sort" id="sort-price-low">
+                        <label class="btn btn-outline-secondary" for="sort-price-low">
+                            <i class="bi bi-arrow-down me-1"></i>Prix le plus bas
+                        </label>
+
+                        <input type="radio" class="btn-check" name="sort" id="sort-closest">
+                        <label class="btn btn-outline-secondary" for="sort-closest">
+                            <i class="bi bi-geo-alt me-1"></i>Proche du point de départ
+                        </label>
+
+                        <input type="radio" class="btn-check" name="sort" id="sort-shortest">
+                        <label class="btn btn-outline-secondary" for="sort-shortest">
+                            <i class="bi bi-hourglass me-1"></i>Trajet le plus court
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <h2 class="h5 mb-0">
+                    {% if trips %}
+                    <strong>{{ trips|length }}</strong> trajet{{ trips|length|pluralize }} disponible{{ trips|length|pluralize }}
+                    {% else %}
+                    Aucun trajet trouvé
+                    {% endif %}
+                </h2>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            {% for trip in trips %}
+            <div class="col-12">
+                <div class="trip-result-card">
+                    <div class="row align-items-center">
+                        <!-- Time & Route -->
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="trip-time">
+                                    <div class="time-display">{{ trip.departure_time|time:"H:i" }}</div>
+                                    <div class="date-display">{{ trip.departure_date|date:"d M" }}</div>
+                                </div>
+                                <div class="trip-route flex-grow-1">
+                                    <div class="route-point">
+                                        <i class="bi bi-record-circle text-primary"></i>
+                                        <strong>{{ trip.departure_city }}</strong>
+                                        <small class="text-muted ms-2">{{ trip.departure_address }}</small>
+                                    </div>
+                                    <div class="route-line"></div>
+                                    <div class="route-point">
+                                        <i class="bi bi-geo-alt-fill text-danger"></i>
+                                        <strong>{{ trip.arrival_city }}</strong>
+                                        <small class="text-muted ms-2">{{ trip.arrival_address }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Driver & Details -->
+                        <div class="col-md-3">
+                            <div class="driver-info">
+                                <div class="d-flex align-items-center mb-2">
+                                    {% if trip.driver.profile_picture %}
+                                    <img src="{{ trip.driver.profile_picture.url }}" class="rounded-circle me-2"
+                                        width="40" height="40" alt="">
+                                    {% else %}
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2"
+                                        style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person-fill text-primary"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-500">{{ trip.driver.get_full_name|default:trip.driver.username }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="trip-badges">
+                                    {% if trip.transport_type %}
+                                    <span class="badge bg-light text-dark">
+                                        {% if trip.transport_type == 'car' %}<i class="bi bi-car-front me-1"></i>Voiture
+                                        {% elif trip.transport_type == 'bus' %}<i class="bi bi-bus-front me-1"></i>Bus
+                                        {% elif trip.transport_type == 'train' %}<i
+                                            class="bi bi-train-front me-1"></i>Train
+                                        {% elif trip.transport_type == 'van' %}<i class="bi bi-truck-front me-1"></i>Van
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                    <span class="badge bg-light text-dark">
+                                        <i class="bi bi-people me-1"></i>{{ trip.available_seats }} place{{ trip.available_seats|pluralize }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price & Action -->
+                        <div class="col-md-3 text-end">
+                            <div class="trip-price mb-3">
+                                <div class="price-amount">{{ trip.price_per_seat }} DT</div>
+                                <small class="text-muted">par personne</small>
+                            </div>
+                            <a href="{% url 'trip_detail' trip.pk %}" class="btn btn-primary">
+                                Voir le trajet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="empty-state text-center py-5">
+                    <i class="bi bi-search display-1 text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun trajet trouvé</h4>
+                    <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+                    <div class="mt-4">
+                        <h5 class="mb-3">Suggestions :</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">✓ Vérifiez l'orthographe des villes</li>
+                            <li class="mb-2">✓ Essayez avec une date différente</li>
+                            <li class="mb-2">✓ Recherchez des villes voisines</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .search-header {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-with-icon {
+        position: relative;
+    }
+
+    .input-with-icon i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 10;
+    }
+
+    .input-with-icon .form-control,
+    .input-with-icon .form-select {
+        padding-left: 40px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .input-with-icon .form-control:focus,
+    .form-select:focus {
+        border-color: #00aff5;
+        box-shadow: 0 0 0 0.2rem rgba(0, 175, 245, 0.25);
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 24px;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        background: #f8f9fa;
+        border-color: #00aff5;
+    }
+
+    .filter-btn.active {
+        background: #00aff5;
+        color: white;
+        border-color: #00aff5;
+    }
+
+    .badge-count {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+
+    .filter-btn.active .badge-count {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Sort Section */
+    .sort-section {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-outline-secondary {
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    .btn-check:checked+.btn-outline-secondary {
+        background: #00aff5;
+        border-color: #00aff5;
+        color: white;
+    }
+
+    .trip-result-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+    }
+
+    .trip-result-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .trip-time {
+        text-align: center;
+        min-width: 80px;
+    }
+
+    .time-display {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .date-display {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .trip-route {
+        position: relative;
+    }
+
+    .route-point {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0;
+    }
+
+    .route-line {
+        width: 2px;
+        height: 20px;
+        background: #dee2e6;
+        margin-left: 6px;
+    }
+
+    .driver-info {
+        padding: 0.5rem 0;
+    }
+
+    .trip-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .trip-price {
+        text-align: right;
+    }
+
+    .price-amount {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .price-amount sup {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+        border-radius: 24px;
+        padding: 0.6rem 2rem;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: 12px;
+        padding: 3rem;
+    }
+
+    .fw-500 {
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .trip-result-card {
+            padding: 1rem;
+        }
+
+        .col-md-3.text-end {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+
+        .filter-buttons {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gestion des boutons de filtre (Type de transport)
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const transportSelect = document.querySelector('select[name="transport_type"]');
+        const searchForm = document.querySelector('.search-form-compact');
+
+        // Initialiser le bouton actif basé sur la sélection actuelle
+        const currentTransport = transportSelect.value;
+        filterButtons.forEach(btn => {
+            btn.classList.remove('active');
+            // Vérifier si le bouton correspond au filtre actuel
+            // Le bouton "Tout" n'a pas d'icône spécifique dans le data-filter implicite (basé sur l'ordre ou le texte)
+            // Ici on assume que le premier bouton est "Tout"
+            const btnText = btn.textContent.trim();
+            const isAll = btnText.startsWith('Tout');
+            const isCar = btn.querySelector('.bi-car-front');
+            const isBus = btn.querySelector('.bi-bus-front');
+            const isTrain = btn.querySelector('.bi-train-front');
+
+            if (isAll && !currentTransport) btn.classList.add('active');
+            else if (isCar && currentTransport === 'car') btn.classList.add('active');
+            else if (isBus && currentTransport === 'bus') btn.classList.add('active');
+            else if (isTrain && currentTransport === 'train') btn.classList.add('active');
+        });
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault(); // Empêcher le comportement par défaut si c'est un bouton
+
+                let filterValue = '';
+                if (this.querySelector('.bi-car-front')) filterValue = 'car';
+                else if (this.querySelector('.bi-bus-front')) filterValue = 'bus';
+                else if (this.querySelector('.bi-train-front')) filterValue = 'train';
+
+                // Mettre à jour le select caché ou visible
+                transportSelect.value = filterValue;
+
+                // Soumettre le formulaire
+                searchForm.submit();
+            });
+        });
+
+        // Gestion du tri
+        const sortRadios = document.querySelectorAll('input[name="sort"]');
+
+        // Récupérer le tri actuel depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort') || 'earliest';
+
+        const activeSortRadio = document.getElementById('sort-' + currentSort);
+        if (activeSortRadio) {
+            activeSortRadio.checked = true;
+        }
+
+        sortRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                // Créer un champ caché pour le tri s'il n'existe pas
+                let sortInput = searchForm.querySelector('input[name="sort"]');
+                if (!sortInput) {
+                    sortInput = document.createElement('input');
+                    sortInput.type = 'hidden';
+                    sortInput.name = 'sort';
+                    searchForm.appendChild(sortInput);
+                }
+
+                // Mettre à jour la valeur
+                if (this.id === 'sort-earliest') sortInput.value = 'earliest';
+                if (this.id === 'sort-price-low') sortInput.value = 'price_asc';
+                if (this.id === 'sort-closest') sortInput.value = 'closest';
+                if (this.id === 'sort-shortest') sortInput.value = 'shortest';
+
+                // Soumettre le formulaire
+                searchForm.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

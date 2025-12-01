@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Message de {{ message.sender }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-3">
+                <a href="{% url 'inbox' %}" class="text-decoration-none text-muted">
+                    <i class="bi bi-arrow-left me-1"></i> Retour à la boîte de réception
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1 class="h3 mb-2">{{ message.subject|default:"(Pas de sujet)" }}</h1>
+                            <div class="d-flex align-items-center text-muted">
+                                <span class="me-2">De :</span>
+                                <span class="fw-bold text-dark me-3">{{
+                                    message.sender.get_full_name|default:message.sender.username }}</span>
+                                <span class="small">{{ message.created_at|date:"d F Y à H:i" }}</span>
+                            </div>
+                        </div>
+                        {% if request.user != message.sender %}
+                        <a href="{% url 'send_message' message.sender.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-reply me-1"></i> Répondre
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="message-content" style="white-space: pre-wrap;">{{ message.body }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

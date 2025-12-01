@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Annuler le trajet{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Annuler le trajet
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Attention !</strong> Toutes les réservations associées seront également annulées.
+                    </div>
+
+                    <h5 class="mb-3">Voulez-vous vraiment annuler ce trajet ?</h5>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3">
+                                {{ trip.departure_city }} <i class="bi bi-arrow-right mx-2"></i> {{ trip.arrival_city }}
+                            </h6>
+                            <div class="row">
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Date</small>
+                                    <div>{{ trip.departure_date|date:"d/m/Y" }}</div>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Heure</small>
+                                    <div>{{ trip.departure_time|time:"H:i" }}</div>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Réservations actives</small>
+                                    <div>{{ trip.bookings.filter(status__in == ['pending','confirmed']).count }}</div>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Prix</small>
+                                    <div>{{ trip.price_per_seat }} DT</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Oui, annuler ce trajet
+                            </button>
+                            <a href="{% url 'my_trips' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Non, retour
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

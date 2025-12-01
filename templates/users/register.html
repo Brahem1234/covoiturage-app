@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Inscription - CovoiturageApp{% endblock %}
+
+{% block content %}
+<div class="auth-container py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card">
+                    <div class="text-center mb-5">
+                        <h1 class="h3 fw-bold mb-2">Bienvenue !</h1>
+                        <p class="text-muted">Créez votre compte en quelques secondes</p>
+                    </div>
+
+                    <form method="post" class="auth-form">
+                        {% csrf_token %}
+
+                        <!-- Section 1: Identité -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title mb-3">Qui êtes-vous ?</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.first_name|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.last_name|as_crispy_field }}
+                                </div>
+                            </div>
+                            {{ form.email|as_crispy_field }}
+                            {{ form.phone_number|as_crispy_field }}
+                        </div>
+
+                        <!-- Section 2: Type de profil -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title mb-3">Votre usage</h5>
+                            <div class="user-type-grid">
+                                <label class="user-type-option">
+                                    <input type="radio" name="user_type" value="passenger" checked>
+                                    <div class="option-content">
+                                        <div class="icon-circle bg-light-blue">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <span class="fw-600">Passager</span>
+                                    </div>
+                                </label>
+                                <label class="user-type-option">
+                                    <input type="radio" name="user_type" value="driver">
+                                    <div class="option-content">
+                                        <div class="icon-circle bg-light-green">
+                                            <i class="bi bi-car-front"></i>
+                                        </div>
+                                        <span class="fw-600">Conducteur</span>
+                                    </div>
+                                </label>
+                                <label class="user-type-option">
+                                    <input type="radio" name="user_type" value="both">
+                                    <div class="option-content">
+                                        <div class="icon-circle bg-light-purple">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </div>
+                                        <span class="fw-600">Les deux</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Sécurité -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title mb-3">Sécurisez votre compte</h5>
+                            {{ form.username|as_crispy_field }}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.password1|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.password2|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mb-4">
+                            S'inscrire
+                        </button>
+
+                        <div class="text-center">
+                            <p class="mb-0 text-muted">
+                                Déjà membre ?
+                                <a href="{% url 'login' %}" class="text-primary fw-600 text-decoration-none">Se
+                                    connecter</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    /* User Type Selection */
+    .user-type-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .user-type-option {
+        cursor: pointer;
+    }
+
+    .user-type-option input {
+        display: none;
+    }
+
+    .option-content {
+        border: 2px solid #f0f2f5;
+        border-radius: 16px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .user-type-option input:checked+.option-content {
+        border-color: #00aff5;
+        background-color: #f0f9ff;
+    }
+
+    .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bg-light-blue {
+        background-color: #e3f2fd;
+        color: #00aff5;
+    }
+
+    .bg-light-green {
+        background-color: #e8f5e9;
+        color: #4caf50;
+    }
+
+    .bg-light-purple {
+        background-color: #f3e5f5;
+        color: #9c27b0;
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+        border-radius: 24px;
+        font-weight: 600;
+        padding: 0.8rem;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 175, 245, 0.3);
+    }
+
+    .form-control {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    .form-control:focus {
+        background-color: white;
+        border-color: #00aff5;
+        box-shadow: 0 0 0 4px rgba(0, 175, 245, 0.1);
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+
+    @media (max-width: 576px) {
+        .user-type-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CovoiturageApp - Voyagez ensemble, économisez{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <h1 class="hero-title">Vous avez vos plans, on a vos bons plans.</h1>
+
+                    <!-- Search Form -->
+                    <div class="search-card">
+                        <form method="get" action="{% url 'search_trips' %}" class="search-form">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted small">Départ</label>
+                                    <div class="input-with-icon">
+                                        <i class="bi bi-record-circle"></i>
+                                        <input type="text" name="departure_city" class="form-control form-control-lg"
+                                            placeholder="Ville de départ">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted small">Destination</label>
+                                    <div class="input-with-icon">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <input type="text" name="arrival_city" class="form-control form-control-lg"
+                                            placeholder="Ville d'arrivée">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted small">Date</label>
+                                    <div class="input-with-icon">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <input type="date" name="departure_date" class="form-control form-control-lg"
+                                            value="{{ today }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted small">Passagers</label>
+                                    <div class="input-with-icon">
+                                        <i class="bi bi-person"></i>
+                                        <select class="form-select form-select-lg">
+                                            <option>1 passager</option>
+                                            <option>2 passagers</option>
+                                            <option>3 passagers</option>
+                                            <option>4+ passagers</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        Rechercher
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it works Section -->
+<section class="how-it-works py-5">
+    <div class="container">
+        <h2 class="section-title mb-5">On y va comment ?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="transport-card">
+                    <div class="transport-icon">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+                    <h3>Covoiturage</h3>
+                    <p class="text-muted">Allez partout, à prix mini</p>
+                    <a href="{% url 'search_trips' %}?transport_type=car" class="btn-link">
+                        Découvrir <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="transport-card">
+                    <div class="transport-icon">
+                        <i class="bi bi-bus-front-fill"></i>
+                    </div>
+                    <h3>Bus</h3>
+                    <p class="text-muted">Plus de 250 destinations à partir de 2,99 DT</p>
+                    <a href="{% url 'search_trips' %}?transport_type=bus" class="btn-link">
+                        Découvrir <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="transport-card">
+                    <div class="transport-icon">
+                        <i class="bi bi-train-front-fill"></i>
+                    </div>
+                    <h3>Train</h3>
+                    <p class="text-muted">SNCF, Rente et Iryo sans frais supplémentaires</p>
+                    <a href="{% url 'search_trips' %}?transport_type=train" class="btn-link">
+                        Découvrir <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Trips Section -->
+<section class="popular-trips py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title mb-4">Nos trajets les plus populaires</h2>
+        <div class="row g-4">
+            {% for trip in recent_trips %}
+            <div class="col-md-6 col-lg-3">
+                <div class="trip-card">
+                    <div class="trip-image">
+                        {% if trip.departure_city == 'Tozeur' %}
+                        <img src="static/images/tozeur.jpeg" alt="Tozeur - Oasis">
+                        {% elif trip.departure_city == 'Tabarka' %}
+                        <img src="static/images/tabarka.jpg" alt="Tabarka - Aiguilles">
+                        {% elif trip.departure_city == 'El Jem' %}
+                        <img src="static/images/el jem.png" alt="El Jem - Amphithéâtre">
+                        {% elif trip.departure_city == 'Tunis' %}
+                        <img src="static/images/el jem.png" alt="Tunis - Mosquée Zitouna">
+                        {% elif trip.departure_city == 'Sousse' %}
+                        <img src="static/images/sousse-tunis.png" alt="Sousse - Médina">
+                        {% elif trip.departure_city == 'Sfax' %}
+                        <img src="static/images/sfax-djerba.png" alt="Sfax - Port">
+                        {% elif trip.departure_city == 'Djerba' %}
+                        <img src="https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=400&h=250&fit=crop"
+                            alt="Djerba - Plage">
+                        {% elif trip.departure_city == 'Hammamet' %}
+                        <img src="static/images/hammamet-gabes.png" alt="Hammamet - Plage">
+                        {% elif trip.departure_city == 'Monastir' %}
+                        <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=400&h=250&fit=crop"
+                            alt="Monastir - Ribat">
+                        {% elif trip.departure_city == 'Kairouan' %}
+                        <img src="static/images/kairouan-sousse.png" alt="Kairouan - Grande Mosquée">
+                        {% elif trip.departure_city == 'Bizerte' %}
+                        <img src="static/images/bizerte-hammamet.png" alt="Bizerte - Vieux Port">
+                        {% elif trip.departure_city == 'Gabes' or trip.departure_city == 'Gabès' %}
+                        <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400&h=250&fit=crop"
+                            alt="Gabès - Oasis">
+                        {% elif trip.departure_city == 'Nabeul' %}
+                        <img src="https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?w=400&h=250&fit=crop"
+                            alt="Nabeul - Céramiques">
+                        {% else %}
+                        <img src="static/images/el jem.png" alt="{{ trip.departure_city }}">
+                        {% endif %}
+                    </div>
+                    <div class="trip-details">
+                        <div class="trip-route">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <span>{{ trip.departure_city }}</span>
+                        </div>
+                        <div class="trip-route">
+                            <i class="bi bi-geo-fill text-danger"></i>
+                            <span>{{ trip.arrival_city }}</span>
+                        </div>
+                        <div class="trip-footer">
+                            <div class="trip-price">
+                                <small class="text-muted">Dès</small>
+                                <div class="price">{{ trip.price_per_seat }} DT</div>
+                            </div>
+                            <a href="{% url 'trip_detail' trip.pk %}" class="btn btn-sm btn-primary rounded-circle">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Aucun trajet disponible pour le moment</p>
+            </div>
+            {% endfor %}
+
+            <!-- Static Popular Trips -->
+            <div class="col-md-6 col-lg-3">
+                <div class="trip-card">
+                    <div class="trip-image">
+                        <img src="static/images/kairouan-sousse.png" alt="Kairouan vers Sousse">
+                    </div>
+                    <div class="trip-details">
+                        <div class="trip-route">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <span>Kairouan</span>
+                        </div>
+                        <div class="trip-route">
+                            <i class="bi bi-geo-fill text-danger"></i>
+                            <span>Sousse</span>
+                        </div>
+                        <div class="trip-footer">
+                            <div class="trip-price">
+                                <small class="text-muted">Dès</small>
+                                <div class="price">15.00 DT</div>
+                            </div>
+                            <a href="{% url 'trip_detail' 21 %}" class="btn btn-sm btn-primary rounded-circle">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="trip-card">
+                    <div class="trip-image">
+                        <img src="static/images/bizerte-hammamet.png" alt="Bizerte vers Hammamet">
+                    </div>
+                    <div class="trip-details">
+                        <div class="trip-route">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <span>Bizerte</span>
+                        </div>
+                        <div class="trip-route">
+                            <i class="bi bi-geo-fill text-danger"></i>
+                            <span>Hammamet</span>
+                        </div>
+                        <div class="trip-footer">
+                            <div class="trip-price">
+                                <small class="text-muted">Dès</small>
+                                <div class="price">39.00 DT</div>
+                            </div>
+                            <a href="{% url 'trip_detail' 24 %}" class="btn btn-sm btn-primary rounded-circle">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="trip-card">
+                    <div class="trip-image">
+                        <img src="static/images/hammamet-gabes.png" alt="Hammamet vers Gabes">
+                    </div>
+                    <div class="trip-details">
+                        <div class="trip-route">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <span>Hammamet</span>
+                        </div>
+                        <div class="trip-route">
+                            <i class="bi bi-geo-fill text-danger"></i>
+                            <span>Gabes</span>
+                        </div>
+                        <div class="trip-footer">
+                            <div class="trip-price">
+                                <small class="text-muted">Dès</small>
+                                <div class="price">28.00 DT</div>
+                            </div>
+                            <a href="{% url 'trip_detail' 22 %}" class="btn btn-sm btn-primary rounded-circle">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Routes Section -->
+<section class="popular-routes py-5">
+    <div class="container">
+        <h2 class="section-title mb-4">Où allez-vous ?</h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <a href="{% url 'search_trips' %}?departure_city=Tunis&arrival_city=Djerba" class="route-link">
+                    Tunis <i class="bi bi-arrow-right mx-2"></i> Djerba
+                    <i class="bi bi-chevron-right ms-auto"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'search_trips' %}?departure_city=Sousse&arrival_city=Hammamet" class="route-link">
+                    Sousse <i class="bi bi-arrow-right mx-2"></i> Hammamet
+                    <i class="bi bi-chevron-right ms-auto"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'search_trips' %}?departure_city=Sfax&arrival_city=Tunis" class="route-link">
+                    Sfax <i class="bi bi-arrow-right mx-2"></i> Tunis
+                    <i class="bi bi-chevron-right ms-auto"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'search_trips' %}?departure_city=Tabarka&arrival_city=Tunis" class="route-link">
+                    Tabarka <i class="bi bi-arrow-right mx-2"></i> Tunis
+                    <i class="bi bi-chevron-right ms-auto"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'search_trips' %}?departure_city=Tozeur&arrival_city=Mahdia" class="route-link">
+                    Tozeur <i class="bi bi-arrow-right mx-2"></i> Mahdia
+                    <i class="bi bi-chevron-right ms-auto"></i>
+                </a>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'search_trips' %}" class="text-primary">Nos top trajets <i
+                    class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        min-height: 500px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&h=600&fit=crop');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        padding: 80px 0;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 3rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-with-icon {
+        position: relative;
+    }
+
+    .input-with-icon i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 1.2rem;
+    }
+
+    .input-with-icon .form-control,
+    .input-with-icon .form-select {
+        padding-left: 40px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+
+    .input-with-icon .form-control:focus,
+    .input-with-icon .form-select:focus {
+        border-color: #00aff5;
+        box-shadow: 0 0 0 0.2rem rgba(0, 175, 245, 0.25);
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 24px;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+    }
+
+    /* How it works */
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .transport-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+    }
+
+    .transport-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .transport-icon {
+        width: 80px;
+        height: 80px;
+        background: #e8f7ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .transport-icon i {
+        font-size: 2.5rem;
+        color: #00aff5;
+    }
+
+    .transport-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-link {
+        color: #00aff5;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-link:hover {
+        color: #0099d6;
+    }
+
+    /* Trip Cards */
+    .trip-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .trip-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .trip-image {
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .trip-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .trip-details {
+        padding: 1.5rem;
+    }
+
+    .trip-route {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+
+    .trip-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .price sup {
+        font-size: 1rem;
+    }
+
+    /* Route Links */
+    .route-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        color: #1a1a1a;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+
+    .route-link:hover {
+        background: #e8f7ff;
+        color: #00aff5;
+    }
+</style>
+{% endblock %}

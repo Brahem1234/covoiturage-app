@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Annuler la réservation{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Annuler la réservation
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Les places seront remises à disposition pour ce trajet.
+                    </div>
+
+                    <h5 class="mb-3">Voulez-vous vraiment annuler cette réservation ?</h5>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3">
+                                {{ booking.trip.departure_city }} <i class="bi bi-arrow-right mx-2"></i> {{
+                                booking.trip.arrival_city }}
+                            </h6>
+                            <div class="row">
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Date</small>
+                                    <div>{{ booking.trip.departure_date|date:"d/m/Y" }}</div>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Heure</small>
+                                    <div>{{ booking.trip.departure_time|time:"H:i" }}</div>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Places réservées</small>
+                                    <div>{{ booking.seats_booked }}</div>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <small class="text-muted">Montant</small>
+                                    <div>{{ booking.total_price }} DT</div>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <small class="text-muted">Conducteur</small>
+                                    <div>{{ booking.trip.driver.get_full_name|default:booking.trip.driver.username }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Oui, annuler cette réservation
+                            </button>
+                            <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Non, retour
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Mon Profil - CovoiturageApp{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Sidebar Profile Card -->
+        <div class="col-lg-4">
+            <div class="profile-card text-center">
+                <div class="position-relative d-inline-block mb-3">
+                    {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" class="profile-avatar" alt="Profile">
+                    {% else %}
+                    <div class="profile-avatar-placeholder">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    {% endif %}
+                    {% if user.is_verified %}
+                    <div class="verified-badge" title="Profil vérifié">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                <p class="text-muted mb-3">Membre depuis {{ user.date_joined|date:"F Y" }}</p>
+
+                <div class="profile-stats d-flex justify-content-center gap-3 mb-4">
+                    <div class="stat-item">
+                        <div class="fw-bold fs-5">0</div>
+                        <div class="text-muted small">Trajets</div>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="stat-item">
+                        <div class="fw-bold fs-5">0</div>
+                        <div class="text-muted small">Avis</div>
+                    </div>
+                </div>
+
+                {% if user.is_driver %}
+                <div class="driver-badge mb-3">
+                    <i class="bi bi-steering-wheel me-2"></i>Conducteur
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="settings-card">
+                <div class="card-header-custom">
+                    <h2 class="h5 mb-0 fw-bold">Modifier mon profil</h2>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" class="p-4">
+                    {% csrf_token %}
+
+                    <!-- Section Infos Personnelles -->
+                    <div class="form-section mb-4">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Informations personnelles</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.phone_number|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.date_of_birth|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.gender|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.bio|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.profile_picture|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Section Conducteur -->
+                    <div class="form-section mb-4">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Véhicule & Préférences</h6>
+
+                        <div class="bg-light p-3 rounded mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_driver }}
+                                <label class="form-check-label fw-500" for="id_is_driver">
+                                    Je propose des trajets (Mode conducteur)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="driver-fields" id="driverFields">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.car_model|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.car_color|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.license_plate|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end pt-3">
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-600">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-card,
+    .settings-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .profile-card {
+        padding: 2rem;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #e3f2fd;
+        color: #00aff5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto;
+    }
+
+    .verified-badge {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: #00aff5;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid white;
+    }
+
+    .driver-badge {
+        background: #e8f5e9;
+        color: #2e7d32;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .card-header-custom {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+        padding: 0.6rem 1rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #00aff5;
+        box-shadow: 0 0 0 4px rgba(0, 175, 245, 0.1);
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+    }
+
+    .fw-500 {
+        font-weight: 500;
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const driverSwitch = document.querySelector('#id_is_driver');
+        const driverFields = document.querySelector('#driverFields');
+
+        function toggleDriverFields() {
+            if (driverSwitch.checked) {
+                driverFields.style.display = 'block';
+            } else {
+                driverFields.style.display = 'none';
+            }
+        }
+
+        if (driverSwitch) {
+            driverSwitch.addEventListener('change', toggleDriverFields);
+            toggleDriverFields(); // Initial state
+        }
+    });
+</script>
+{% endblock %}

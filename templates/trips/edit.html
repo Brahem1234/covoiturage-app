@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Modifier le trajet{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Modifier le trajet
+                    </h2>
+                    <p class="mb-0 mt-2">{{ trip.departure_city }} → {{ trip.arrival_city }}</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Type de transport -->
+                        <div class="mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-truck me-2"></i>Type de transport
+                            </h5>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="id_transport_type" class="form-label">Mode de transport *</label>
+                                    {{ form.transport_type }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Itinéraire -->
+                        <div class="mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-geo-alt me-2"></i>Itinéraire
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_departure_city" class="form-label">Ville de départ *</label>
+                                    {{ form.departure_city }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_departure_address" class="form-label">Adresse de départ *</label>
+                                    {{ form.departure_address }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_arrival_city" class="form-label">Ville d'arrivée *</label>
+                                    {{ form.arrival_city }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_arrival_address" class="form-label">Adresse d'arrivée *</label>
+                                    {{ form.arrival_address }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Date et heure -->
+                        <div class="mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-calendar-event me-2"></i>Date et heure
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_departure_date" class="form-label">Date de départ *</label>
+                                    {{ form.departure_date }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_departure_time" class="form-label">Heure de départ *</label>
+                                    {{ form.departure_time }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Places et prix -->
+                        <div class="mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-cash-coin me-2"></i>Places et tarif
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_available_seats" class="form-label">Nombre de places *</label>
+                                    {{ form.available_seats }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_price_per_seat" class="form-label">Prix par place (DT) *</label>
+                                    {{ form.price_per_seat }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Options -->
+                        <div class="mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-gear me-2"></i>Options du trajet
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_luggage_size" class="form-label">Taille des bagages</label>
+                                    {{ form.luggage_size }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-check mt-4">
+                                        {{ form.accepts_pets }}
+                                        <label class="form-check-label" for="id_accepts_pets">
+                                            <i class="bi bi-heart me-1"></i>Animaux acceptés
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-check mt-4">
+                                        {{ form.accepts_smoking }}
+                                        <label class="form-check-label" for="id_accepts_smoking">
+                                            <i class="bi bi-ban me-1"></i>Fumeur accepté
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-chat-left-text me-2"></i>Description
+                            </h5>
+                            <label for="id_description" class="form-label">Informations complémentaires</label>
+                            {{ form.description }}
+                        </div>
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Erreurs dans le formulaire :</strong>
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                <li>{{ field }} : {{ error }}</li>
+                                {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'my_trips' %}" class="btn btn-outline-secondary me-md-2">Annuler</a>
+                            <button type="submit" class="btn btn-warning btn-lg px-5">
+                                <i class="bi bi-check-circle me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+</style>
+{% endblock %}
