@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Mes réservations - CovoiturageApp{% endblock %}
+{% block title %}Mes réservations - TAWSILA24{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -28,7 +28,8 @@
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <h5 class="mb-0">{{ booking.trip.departure_city }} <i
-                                            class="bi bi-arrow-right mx-2 text-muted"></i> {{ booking.trip.arrival_city }}</h5>
+                                            class="bi bi-arrow-right mx-2 text-muted"></i> {{ booking.trip.arrival_city
+                                        }}</h5>
                                     <span
                                         class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'pending' %}bg-warning text-dark{% elif booking.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
                                         {{ booking.get_status_display }}
@@ -71,7 +72,8 @@
                                         </div>
                                         {% endif %}
                                         <span class="text-muted small">
-                                          {{ booking.trip.driver.get_full_name|default:booking.trip.driver.username }}</span>
+                                            {{ booking.trip.driver.get_full_name|default:booking.trip.driver.username
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -82,7 +84,8 @@
                     <div class="col-md-5 text-md-end mt-3 mt-md-0">
                         <div class="booking-price mb-3">
                             <div class="price-amount">{{ booking.total_price }} DT</div>
-                            <small class="text-muted">Total pour {{ booking.seats_booked }} place{{ booking.seats_booked|pluralize }}</small>
+                            <small class="text-muted">Total pour {{ booking.seats_booked }} place{{
+                                booking.seats_booked|pluralize }}</small>
                         </div>
 
                         <div class="d-flex gap-2 justify-content-md-end flex-wrap">

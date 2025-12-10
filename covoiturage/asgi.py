@@ -1,5 +1,5 @@
 """
-ASGI config for covoiturage project.
+ASGI config for TAWSILA24 (covoiturage) project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

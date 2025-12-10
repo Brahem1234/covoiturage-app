@@ -1,5 +1,5 @@
 """
-WSGI config for covoiturage project.
+WSGI config for TAWSILA24 (covoiturage) project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

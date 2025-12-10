@@ -1,6 +1,8 @@
-# 🚗 Plateforme de Covoiturage
+# 🚗 TAWSILA24 - Plateforme de Covoiturage
 
-Une plateforme moderne et professionelle de covoiturage développée avec Django.
+**توصيلة 24** - Connecter les 24 gouvernorats tunisiens
+
+Une plateforme moderne et professionnelle de covoiturage développée avec Django, couvrant l'ensemble du territoire tunisien.
 
 ## 🌟 Fonctionnalités
 
@@ -73,7 +75,7 @@ Ouvrir votre navigateur à l'adresse : http://127.0.0.1:8000/
 ## 📁 Structure du projet
 
 ```
-covoiturage_project/
+TAWSILA24/
 ├── apps/
 │   ├── users/          # Gestion des utilisateurs
 │   ├── trips/          # Gestion des trajets
@@ -139,7 +141,7 @@ Ce projet est développé à des fins éducatives.
 
 ## 👥 Auteur
 
-Développé dans le cadre d'un projet académique.
+**TAWSILA24** - Plateforme de covoiturage tunisienne développée dans le cadre d'un projet académique.
 
 ## 🤝 Contribution
 
