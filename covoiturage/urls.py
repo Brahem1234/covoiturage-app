@@ -5,13 +5,17 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.trips.urls')),  # La page d'accueil sera gérée par trips
+    path('', include('apps.trips.urls_home')), # Pattern pour la home seule
+    path('trips/', include('apps.trips.urls')), # Le reste sous /trips/
     path('users/', include('apps.users.urls')),
     path('bookings/', include('apps.bookings.urls')),
     path('messaging/', include('apps.messaging.urls')),
     path('reviews/', include('apps.reviews.urls')),
     path('payments/', include('apps.payments.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    
+    # API endpoints
+    path('api/', include('covoiturage.api_urls')),
 ]
 
 if settings.DEBUG:

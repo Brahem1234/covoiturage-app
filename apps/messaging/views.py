@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -22,6 +23,17 @@ def send_message(request, recipient_id):
             message.sender = request.user
             message.recipient = recipient
             message.save()
+            
+            # Notification au destinataire
+            from apps.notifications.utils import create_notification
+            create_notification(
+                recipient=recipient,
+                notification_type='new_message',
+                title='Nouveau message',
+                message=f"Vous avez reçu un nouveau message de {request.user.username}.",
+                link=f"/messages/{message.id}/"
+            )
+            
             messages.success(request, 'Message envoyé avec succès !')
             return redirect('inbox')
     else:
@@ -42,3 +54,18 @@ def message_detail(request, pk):
         message.save()
         
     return render(request, 'messaging/detail.html', {'message': message})
+@login_required
+def conversation(request, user_id):
+    other_user = get_object_or_404(User, pk=user_id)
+    messages_list = Message.objects.filter(
+        (Q(sender=request.user) & Q(recipient=other_user)) |
+        (Q(sender=other_user) & Q(recipient=request.user))
+    ).order_by('created_at')
+    
+    # Marquer comme lu
+    Message.objects.filter(sender=other_user, recipient=request.user, is_read=False).update(is_read=True)
+    
+    return render(request, 'messaging/conversation.html', {
+        'other_user': other_user,
+        'messages_list': messages_list
+    })

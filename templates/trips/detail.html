@@ -89,6 +89,10 @@
                                 </div>
                                 {% endif %}
                             </div>
+
+                            <h5 class="section-title mt-4">Carte du trajet</h5>
+                            <div id="trip-map"
+                                style="height: 300px; width: 100%; border-radius: 12px; margin-bottom: 2rem;"></div>
                         </div>
 
                         <!-- Driver Info -->
@@ -104,10 +108,23 @@
                                     </div>
                                     {% endif %}
                                     <div class="ms-3">
-                                        <h6 class="mb-0">{{ trip.driver.get_full_name|default:trip.driver.username }}
+                                        <h6 class="mb-0">
+                                            <a href="{% url 'public_profile' trip.driver.username %}"
+                                                class="text-decoration-none text-dark hover-primary">
+                                                {{ trip.driver.get_full_name|default:trip.driver.username }}
+                                                {% if trip.driver.is_verified %}
+                                                <i class="bi bi-patch-check-fill text-success ms-1" title="Vérifié"></i>
+                                                {% endif %}
+                                            </a>
                                         </h6>
-                                        <small class="text-muted">Membre depuis {{
-                                            trip.driver.date_joined|date:"Y"}}</small>
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            <div class="rating-small text-warning">
+                                                <i class="bi bi-star-fill small"></i>
+                                                <span class="text-dark fw-bold small">{{ trip.driver.average_rating
+                                                    }}</span>
+                                            </div>
+                                            <small class="text-muted">• {{ trip.driver.review_count }} avis</small>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -387,4 +404,50 @@
         font-weight: 600;
     }
 </style>
+
+<!-- Google Maps Scripts -->
+{% if GOOGLE_MAPS_API_KEY and trip.departure_lat and trip.arrival_lat %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
+<script>
+    function initDetailMap() {
+        const departure = {
+            lat: parseFloat("{{ trip.departure_lat|default:0|stringformat:'f' }}"),
+            lng: parseFloat("{{ trip.departure_lng|default:0|stringformat:'f' }}")
+        };
+        const arrival = {
+            lat: parseFloat("{{ trip.arrival_lat|default:0|stringformat:'f' }}"),
+            lng: parseFloat("{{ trip.arrival_lng|default:0|stringformat:'f' }}")
+        };
+
+        const map = new google.maps.Map(document.getElementById("trip-map"), {
+            zoom: 7,
+            center: departure,
+            mapTypeControl: false,
+            streetViewControl: false,
+        });
+
+        new google.maps.Marker({
+            position: departure,
+            map: map,
+            title: "Départ",
+            icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        });
+
+        new google.maps.Marker({
+            position: arrival,
+            map: map,
+            title: "Arrivée",
+            icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        });
+
+        // Fit bounds
+        const bounds = new google.maps.LatLngBounds();
+        bounds.extend(departure);
+        bounds.extend(arrival);
+        map.fitBounds(bounds);
+    }
+
+    document.addEventListener('DOMContentLoaded', initDetailMap);
+</script>
+{% endif %}
 {% endblock %}

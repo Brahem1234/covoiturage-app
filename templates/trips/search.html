@@ -12,16 +12,79 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <div class="input-with-icon">
-                                <i class="bi bi-record-circle"></i>
-                                <input type="text" name="departure_city" class="form-control" placeholder="Départ"
-                                    value="{{ request.GET.departure_city }}">
+                                <i class="bi bi-geo-alt"></i>
+                                <input type="text" id="search-address" class="form-control"
+                                    placeholder="Rechercher près d'une adresse..." value="{{ request.GET.address }}">
+                                <input type="hidden" name="lat" id="id_lat" value="{{ request.GET.lat }}">
+                                <input type="hidden" name="lng" id="id_lng" value="{{ request.GET.lng }}">
+                                <input type="hidden" name="address" id="id_address_val"
+                                    value="{{ request.GET.address }}">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-1">
+                            <label class="form-label small mb-1">Rayon</label>
+                            <select name="radius" class="form-select">
+                                <option value="5" {% if request.GET.radius=='5' or not request.GET.radius %}selected{%
+                                    endif %}>5 km</option>
+                                <option value="10" {% if request.GET.radius=='10' %}selected{% endif %}>10 km</option>
+                                <option value="20" {% if request.GET.radius=='20' %}selected{% endif %}>20 km</option>
+                                <option value="50" {% if request.GET.radius=='50' %}selected{% endif %}>50 km</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <div class="input-with-icon">
                                 <i class="bi bi-geo-alt-fill"></i>
-                                <input type="text" name="arrival_city" class="form-control" placeholder="Arrivée"
-                                    value="{{ request.GET.arrival_city }}">
+                                <select name="arrival_city" class="form-select">
+                                    <option value="">Dest. (Gouvernorat)</option>
+                                    <option value="tunis" {% if request.GET.arrival_city=='tunis' %}selected{% endif %}>
+                                        Tunis</option>
+                                    <option value="ariana" {% if request.GET.arrival_city=='ariana' %}selected{% endif
+                                        %}>Ariana</option>
+                                    <option value="ben_arous" {% if request.GET.arrival_city=='ben_arous' %}selected{%
+                                        endif %}>Ben Arous</option>
+                                    <option value="manouba" {% if request.GET.arrival_city=='manouba' %}selected{% endif
+                                        %}>Manouba</option>
+                                    <option value="nabeul" {% if request.GET.arrival_city=='nabeul' %}selected{% endif
+                                        %}>Nabeul</option>
+                                    <option value="zaghouan" {% if request.GET.arrival_city=='zaghouan' %}selected{%
+                                        endif %}>Zaghouan</option>
+                                    <option value="bizerte" {% if request.GET.arrival_city=='bizerte' %}selected{% endif
+                                        %}>Bizerte</option>
+                                    <option value="beja" {% if request.GET.arrival_city=='beja' %}selected{% endif %}>
+                                        Béja</option>
+                                    <option value="jendouba" {% if request.GET.arrival_city=='jendouba' %}selected{%
+                                        endif %}>Jendouba</option>
+                                    <option value="kef" {% if request.GET.arrival_city=='kef' %}selected{% endif %}>Le
+                                        Kef</option>
+                                    <option value="siliana" {% if request.GET.arrival_city=='siliana' %}selected{% endif
+                                        %}>Siliana</option>
+                                    <option value="kairouan" {% if request.GET.arrival_city=='kairouan' %}selected{%
+                                        endif %}>Kairouan</option>
+                                    <option value="kasserine" {% if request.GET.arrival_city=='kasserine' %}selected{%
+                                        endif %}>Kasserine</option>
+                                    <option value="sidi_bouzid" {% if request.GET.arrival_city=='sidi_bouzid'
+                                        %}selected{% endif %}>Sidi Bouzid</option>
+                                    <option value="sousse" {% if request.GET.arrival_city=='sousse' %}selected{% endif
+                                        %}>Sousse</option>
+                                    <option value="monastir" {% if request.GET.arrival_city=='monastir' %}selected{%
+                                        endif %}>Monastir</option>
+                                    <option value="mahdia" {% if request.GET.arrival_city=='mahdia' %}selected{% endif
+                                        %}>Mahdia</option>
+                                    <option value="sfax" {% if request.GET.arrival_city=='sfax' %}selected{% endif %}>
+                                        Sfax</option>
+                                    <option value="gabes" {% if request.GET.arrival_city=='gabes' %}selected{% endif %}>
+                                        Gabès</option>
+                                    <option value="medenine" {% if request.GET.arrival_city=='medenine' %}selected{%
+                                        endif %}>Médenine</option>
+                                    <option value="tataouine" {% if request.GET.arrival_city=='tataouine' %}selected{%
+                                        endif %}>Tataouine</option>
+                                    <option value="gafsa" {% if request.GET.arrival_city=='gafsa' %}selected{% endif %}>
+                                        Gafsa</option>
+                                    <option value="tozeur" {% if request.GET.arrival_city=='tozeur' %}selected{% endif
+                                        %}>Tozeur</option>
+                                    <option value="kebili" {% if request.GET.arrival_city=='kebili' %}selected{% endif
+                                        %}>Kébili</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -33,20 +96,18 @@
                         </div>
                         <div class="col-md-2">
                             <select name="transport_type" class="form-select">
-                                <option value="">Tous</option>
+                                <option value="">Transport</option>
                                 <option value="car" {% if request.GET.transport_type=='car' %}selected{% endif %}>
                                     Voiture</option>
                                 <option value="bus" {% if request.GET.transport_type=='bus' %}selected{% endif %}>Bus
                                 </option>
                                 <option value="train" {% if request.GET.transport_type=='train' %}selected{% endif %}>
                                     Train</option>
-                                <option value="van" {% if request.GET.transport_type=='van' %}selected{% endif %}>Van
-                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-search me-1"></i> Rechercher
+                                <i class="bi bi-search me-1"></i>
                             </button>
                         </div>
                     </div>
@@ -63,16 +124,16 @@
         <div class="filter-tabs mb-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div class="filter-buttons d-flex gap-2">
-                    <button class="filter-btn active">
+                    <button class="filter-btn active" data-type="">
                         Tout <span class="badge-count">{{ trips|length }}</span>
                     </button>
-                    <button class="filter-btn">
+                    <button class="filter-btn" data-type="car">
                         <i class="bi bi-car-front"></i> Covoiturage <span class="badge-count">{{ trips|length }}</span>
                     </button>
-                    <button class="filter-btn">
+                    <button class="filter-btn" data-type="bus">
                         <i class="bi bi-bus-front"></i> Bus <span class="badge-count">0</span>
                     </button>
-                    <button class="filter-btn">
+                    <button class="filter-btn" data-type="train">
                         <i class="bi bi-train-front"></i> Train <span class="badge-count">0</span>
                     </button>
                 </div>
@@ -115,8 +176,8 @@
             <div class="col-12">
                 <h2 class="h5 mb-0">
                     {% if trips %}
-                    <strong>{{ trips|length }}</strong> trajet{{ trips|length|pluralize }} disponible{{
-                    trips|length|pluralize }}
+                    <strong>{{ trips|length }}</strong> trajet{{ trips|length|pluralize }}
+                    disponible{{trips|length|pluralize }}
                     {% else %}
                     Aucun trajet trouvé
                     {% endif %}
@@ -182,8 +243,8 @@
                                     </span>
                                     {% endif %}
                                     <span class="badge bg-light text-dark">
-                                        <i class="bi bi-people me-1"></i>{{ trip.available_seats }} place{{
-                                        trip.available_seats|pluralize }}
+                                        <i class="bi bi-people me-1"></i>{{ trip.available_seats }}
+                                        place{{trip.available_seats|pluralize }}
                                     </span>
                                 </div>
                             </div>
@@ -433,37 +494,18 @@
         const searchForm = document.querySelector('.search-form-compact');
 
         // Initialiser le bouton actif basé sur la sélection actuelle
-        const currentTransport = transportSelect.value;
+        const currentTransport = transportSelect.value || '';
         filterButtons.forEach(btn => {
             btn.classList.remove('active');
-            // Vérifier si le bouton correspond au filtre actuel
-            // Le bouton "Tout" n'a pas d'icône spécifique dans le data-filter implicite (basé sur l'ordre ou le texte)
-            // Ici on assume que le premier bouton est "Tout"
-            const btnText = btn.textContent.trim();
-            const isAll = btnText.startsWith('Tout');
-            const isCar = btn.querySelector('.bi-car-front');
-            const isBus = btn.querySelector('.bi-bus-front');
-            const isTrain = btn.querySelector('.bi-train-front');
-
-            if (isAll && !currentTransport) btn.classList.add('active');
-            else if (isCar && currentTransport === 'car') btn.classList.add('active');
-            else if (isBus && currentTransport === 'bus') btn.classList.add('active');
-            else if (isTrain && currentTransport === 'train') btn.classList.add('active');
+            if (btn.getAttribute('data-type') === currentTransport) {
+                btn.classList.add('active');
+            }
         });
 
         filterButtons.forEach(btn => {
             btn.addEventListener('click', function (e) {
-                e.preventDefault(); // Empêcher le comportement par défaut si c'est un bouton
-
-                let filterValue = '';
-                if (this.querySelector('.bi-car-front')) filterValue = 'car';
-                else if (this.querySelector('.bi-bus-front')) filterValue = 'bus';
-                else if (this.querySelector('.bi-train-front')) filterValue = 'train';
-
-                // Mettre à jour le select caché ou visible
-                transportSelect.value = filterValue;
-
-                // Soumettre le formulaire
+                e.preventDefault();
+                transportSelect.value = this.getAttribute('data-type');
                 searchForm.submit();
             });
         });
@@ -475,7 +517,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const currentSort = urlParams.get('sort') || 'earliest';
 
-        const activeSortRadio = document.getElementById('sort-' + currentSort);
+        const activeSortRadio = document.getElementById('sort-' + (currentSort === 'price_asc' ? 'price-low' : currentSort));
         if (activeSortRadio) {
             activeSortRadio.checked = true;
         }

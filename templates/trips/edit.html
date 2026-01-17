@@ -25,7 +25,7 @@
                             </h5>
                             <div class="row">
                                 <div class="col-12 mb-3">
-                                    <label for="id_transport_type" class="form-label">Mode de transport *</label>
+                                    <label for="id_transport_type" class="form-label">Mode de transport </label>
                                     {{ form.transport_type }}
                                 </div>
                             </div>
@@ -40,21 +40,21 @@
                             </h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="id_departure_city" class="form-label">Ville de départ *</label>
+                                    <label for="id_departure_city" class="form-label">Ville de départ </label>
                                     {{ form.departure_city }}
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="id_departure_address" class="form-label">Adresse de départ *</label>
+                                    <label for="id_departure_address" class="form-label">Adresse de départ </label>
                                     {{ form.departure_address }}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="id_arrival_city" class="form-label">Ville d'arrivée *</label>
+                                    <label for="id_arrival_city" class="form-label">Ville d'arrivée </label>
                                     {{ form.arrival_city }}
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="id_arrival_address" class="form-label">Adresse d'arrivée *</label>
+                                    <label for="id_arrival_address" class="form-label">Adresse d'arrivée </label>
                                     {{ form.arrival_address }}
                                 </div>
                             </div>
@@ -180,4 +180,40 @@
         box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
     }
 </style>
+
+<!-- Google Maps Scripts -->
+{% if GOOGLE_MAPS_API_KEY %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
+<script>
+    function initAutocomplete() {
+        const fields = [
+            { id: 'id_departure_address', lat: 'id_departure_lat', lng: 'id_departure_lng' },
+            { id: 'id_arrival_address', lat: 'id_arrival_lat', lng: 'id_arrival_lng' }
+        ];
+
+        fields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (!input) return;
+
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: "tn" },
+                fields: ["address_components", "geometry"],
+                types: ["address"]
+            });
+
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) return;
+
+                document.getElementById(field.lat).value = place.geometry.location.lat();
+                document.getElementById(field.lng).value = place.geometry.location.lng();
+            });
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initAutocomplete);
+</script>
+{% endif %}
+
+{% load static %}
+<script src="{% static 'js/governorate_addresses.js' %}"></script>
 {% endblock %}

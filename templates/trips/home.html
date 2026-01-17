@@ -21,16 +21,66 @@
                                     <label class="form-label text-muted small">Départ</label>
                                     <div class="input-with-icon">
                                         <i class="bi bi-record-circle"></i>
-                                        <input type="text" name="departure_city" class="form-control form-control-lg"
-                                            placeholder="Ville de départ">
+                                        <select name="departure_city" class="form-select form-select-lg">
+                                            <option value="">Sélectionnez un gouvernorat</option>
+                                            <option value="tunis">Tunis</option>
+                                            <option value="ariana">Ariana</option>
+                                            <option value="ben_arous">Ben Arous</option>
+                                            <option value="manouba">Manouba</option>
+                                            <option value="nabeul">Nabeul</option>
+                                            <option value="zaghouan">Zaghouan</option>
+                                            <option value="bizerte">Bizerte</option>
+                                            <option value="beja">Béja</option>
+                                            <option value="jendouba">Jendouba</option>
+                                            <option value="kef">Le Kef</option>
+                                            <option value="siliana">Siliana</option>
+                                            <option value="kairouan">Kairouan</option>
+                                            <option value="kasserine">Kasserine</option>
+                                            <option value="sidi_bouzid">Sidi Bouzid</option>
+                                            <option value="sousse">Sousse</option>
+                                            <option value="monastir">Monastir</option>
+                                            <option value="mahdia">Mahdia</option>
+                                            <option value="sfax">Sfax</option>
+                                            <option value="gabes">Gabès</option>
+                                            <option value="medenine">Médenine</option>
+                                            <option value="tataouine">Tataouine</option>
+                                            <option value="gafsa">Gafsa</option>
+                                            <option value="tozeur">Tozeur</option>
+                                            <option value="kebili">Kébili</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label text-muted small">Destination</label>
                                     <div class="input-with-icon">
                                         <i class="bi bi-geo-alt-fill"></i>
-                                        <input type="text" name="arrival_city" class="form-control form-control-lg"
-                                            placeholder="Ville d'arrivée">
+                                        <select name="arrival_city" class="form-select form-select-lg">
+                                            <option value="">Sélectionnez un gouvernorat</option>
+                                            <option value="tunis">Tunis</option>
+                                            <option value="ariana">Ariana</option>
+                                            <option value="ben_arous">Ben Arous</option>
+                                            <option value="manouba">Manouba</option>
+                                            <option value="nabeul">Nabeul</option>
+                                            <option value="zaghouan">Zaghouan</option>
+                                            <option value="bizerte">Bizerte</option>
+                                            <option value="beja">Béja</option>
+                                            <option value="jendouba">Jendouba</option>
+                                            <option value="kef">Le Kef</option>
+                                            <option value="siliana">Siliana</option>
+                                            <option value="kairouan">Kairouan</option>
+                                            <option value="kasserine">Kasserine</option>
+                                            <option value="sidi_bouzid">Sidi Bouzid</option>
+                                            <option value="sousse">Sousse</option>
+                                            <option value="monastir">Monastir</option>
+                                            <option value="mahdia">Mahdia</option>
+                                            <option value="sfax">Sfax</option>
+                                            <option value="gabes">Gabès</option>
+                                            <option value="medenine">Médenine</option>
+                                            <option value="tataouine">Tataouine</option>
+                                            <option value="gafsa">Gafsa</option>
+                                            <option value="tozeur">Tozeur</option>
+                                            <option value="kebili">Kébili</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
@@ -77,7 +127,7 @@
                     <div class="transport-icon">
                         <i class="bi bi-car-front-fill"></i>
                     </div>
-                    <h3>Covoiturage</h3>
+                    <h3>Voiture</h3>
                     <p class="text-muted">Allez partout, à prix mini</p>
                     <a href="{% url 'search_trips' %}?transport_type=car" class="btn-link">
                         Découvrir <i class="bi bi-arrow-right"></i>
@@ -117,7 +167,7 @@
     <div class="container">
         <h2 class="section-title mb-4">Nos trajets les plus populaires</h2>
         <div class="row g-4">
-            {% for trip in recent_trips %}
+            {% for trip in popular_trips %}
             <div class="col-md-6 col-lg-3">
                 <div class="trip-card">
                     <div class="trip-image">

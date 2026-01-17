@@ -90,6 +90,19 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link fw-500 position-relative" href="{% url 'notifications' %}"
+                            style="color: #1a1a1a;">
+                            <i class="bi bi-bell me-1"></i>
+                            {% if unread_notifications_count > 0 %}
+                            <span
+                                class="position-absolute top-2 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 0.6rem;">
+                                {{ unread_notifications_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link fw-500" href="{% url 'inbox' %}" style="color: #1a1a1a;">
                             <i class="bi bi-chat-dots me-1"></i> Messages
                         </a>
@@ -195,6 +208,48 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% if user.is_authenticated %}
+    <script>
+        const notificationSocket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+            + window.location.host
+            + '/ws/notifications/'
+        );
+
+        notificationSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const notification = data.notification;
+
+            // Afficher une petite alerte (Toast)
+            if (window.Notification && Notification.permission === "granted") {
+                new Notification(notification.title, { body: notification.message });
+            } else {
+                // Fallback: Bootstrap Toast ou simple alert pour la démo
+                console.log("Nouvelle notification:", notification);
+            }
+
+            // Recharger la page ou mettre à jour le badge (simplifié pour l'instant)
+            // Dans une vraie app, on mettrait à jour le DOM sans recharger
+            const badge = document.querySelector('.bi-bell + .badge');
+            if (badge) {
+                badge.innerText = parseInt(badge.innerText) + 1;
+            } else {
+                location.reload(); // Recharger pour voir le nouveau badge
+            }
+        };
+
+        notificationSocket.onclose = function (e) {
+            console.error('Notification socket closed unexpectedly');
+        };
+
+        // Demander la permission pour les notifications système
+        if (window.Notification && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    </script>
+    {% endif %}
+
     {% block extra_js %}{% endblock %}
 </body>
 

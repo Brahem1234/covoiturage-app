@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Trajets récurrents - TAWSILA24{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="create-trip-header text-center mb-5">
+                <h1 class="display-5 fw-bold mb-3" style="color: #00aff5;">Trajets Récurrents</h1>
+                <p class="lead" style="color: #1a1a1a;">Configurez vos trajets réguliers (domicile-travail, etc.) en une
+                    seule fois.</p>
+            </div>
+
+            <div class="create-trip-card">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-geo-alt me-2"></i>Itinéraire
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">{{ form.departure_city|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.departure_address|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.arrival_city|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.arrival_address|as_crispy_field }}</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-repeat me-2"></i>Récurrence et Prix
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">{{ form.departure_time|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ form.available_seats|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ form.price_per_seat|as_crispy_field }}</div>
+
+                            <div class="col-md-4">{{ form.frequency|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ form.start_date|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ form.end_date|as_crispy_field }}</div>
+                        </div>
+
+                        <div id="days-section" class="mt-4 p-3 bg-light rounded-4" style="display:none;">
+                            <label class="form-label fw-bold mb-3">Sélectionnez les jours :</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                {{ form.days_of_week_list|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold">
+                            Activer la récurrence
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .create-trip-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .section-title {
+        color: #00aff5;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+    }
+
+    /* Style pour les checkboxes horizontales */
+    #div_id_days_of_week_list .form-check {
+        display: inline-block;
+        margin-right: 1rem;
+    }
+</style>
+
+{% load static %}
+<script src="{% static 'js/governorate_addresses.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const freqSelect = document.querySelector('#id_frequency');
+        const daysSection = document.querySelector('#days-section');
+
+        function toggleDays() {
+            if (freqSelect.value === 'weekly') {
+                daysSection.style.display = 'block';
+            } else {
+                daysSection.style.display = 'none';
+            }
+        }
+
+        freqSelect.addEventListener('change', toggleDays);
+        toggleDays();
+    });
+</script>
+{% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Publier un trajet - TAWSILA24{% endblock %}
 
@@ -13,73 +14,181 @@
             </div>
 
             <div class="create-trip-card">
-                <form method="post">
+                <form method="post" id="trip-form">
                     {% csrf_token %}
 
-                    <!-- Route Section -->
+                    {% if form.errors or recurring_form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>Erreur de
+                            validation</h4>
+                        <p>Veuillez corriger les erreurs suivantes :</p>
+                        <hr>
+
+                        {% if form.non_field_errors %}
+                        <div class="mb-2">
+                            <strong>Erreurs générales :</strong>
+                            <ul class="mb-0">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <ul class="mb-0">
+                            {% for field in form %}
+                            {% if field.errors %}
+                            <li><strong>{{ field.label }} :</strong>
+                                {% for error in field.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if trip_type == 'recurring' or request.POST.trip_type == 'recurring' %}
+                            {% for field in recurring_form %}
+                            {% if field.errors %}
+                            <li><strong>{{ field.label }} :</strong>
+                                {% for error in field.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    <input type="hidden" name="trip_type" id="trip_type" value="{{ trip_type|default:'single' }}">
+
+                    <!-- Itinéraire -->
                     <div class="form-section">
                         <h5 class="section-title">
                             <i class="bi bi-geo-alt me-2"></i>Itinéraire
                         </h5>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-500">Ville de départ </label>
+                                <label class="form-label fw-500">Gouvernorat de départ *</label>
                                 {{ form.departure_city }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-500">Adresse de départ </label>
+                                <label class="form-label fw-500">Adresse de départ *</label>
                                 {{ form.departure_address }}
+                                {{ form.departure_lat }}
+                                {{ form.departure_lng }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-500">Ville d'arrivée </label>
+                                <label class="form-label fw-500">Gouvernorat d'arrivée *</label>
                                 {{ form.arrival_city }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-500">Adresse d'arrivée </label>
+                                <label class="form-label fw-500">Adresse d'arrivée *</label>
                                 {{ form.arrival_address }}
+                                {{ form.arrival_lat }}
+                                {{ form.arrival_lng }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-500">Pays *</label>
+                                {{ form.country }}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Date & Time Section -->
+                    <!-- Date et heure / Récurrence -->
                     <div class="form-section">
-                        <h5 class="section-title">
-                            <i class="bi bi-calendar-event me-2"></i>Date et heure
-                        </h5>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-500">Date de départ </label>
-                                {{ form.departure_date }}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="section-title mb-0">
+                                <i class="bi bi-calendar-event me-2"></i>Date et heure
+                            </h5>
+                            <div class="form-check form-switch">
+                                {% if trip_type == 'recurring' %}
+                                <input class="form-check-input" type="checkbox" id="is_recurring" checked
+                                    style="width: 3rem; height: 1.5rem; cursor: pointer;">
+                                {% else %}
+                                <input class="form-check-input" type="checkbox" id="is_recurring"
+                                    style="width: 3rem; height: 1.5rem; cursor: pointer;">
+                                {% endif %}
+                                <label class="form-check-label ms-2" for="is_recurring"
+                                    style="cursor: pointer; font-weight: 500;">
+                                    <i class="bi bi-repeat me-1"></i>Trajet récurrent
+                                </label>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-500">Heure de départ </label>
-                                {{ form.departure_time }}
+                        </div>
+
+                        <!-- Champs trajet simple -->
+                        <div id="single-fields">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-500">Date de départ *</label>
+                                    {{ form.departure_date }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-500">Heure de départ *</label>
+                                    {{ form.departure_time }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Champs trajet récurrent -->
+                        <div id="recurring-fields" style="display: none;">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-500">Heure de départ *</label>
+                                    {{ recurring_form.departure_time }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-500">Fréquence *</label>
+                                    {{ recurring_form.frequency }}
+                                </div>
+                                <div class="col-md-4"></div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-500">Date de début *</label>
+                                    {{ recurring_form.start_date }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-500">Date de fin *</label>
+                                    {{ recurring_form.end_date }}
+                                </div>
+                                <!-- Hidden recurring coords -->
+                                {{ recurring_form.departure_lat }}
+                                {{ recurring_form.departure_lng }}
+                                {{ recurring_form.arrival_lat }}
+                                {{ recurring_form.arrival_lng }}
+                            </div>
+
+                            <div id="days-section" class="mt-4 p-3 bg-light rounded-4" style="display:none;">
+                                <label class="form-label fw-bold mb-3">Sélectionnez les jours :</label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    {{ recurring_form.days_of_week_list }}
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Vehicle & Seats Section -->
+                    <!-- Véhicule et places -->
                     <div class="form-section">
                         <h5 class="section-title">
                             <i class="bi bi-car-front me-2"></i>Véhicule et places
                         </h5>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label fw-500">Type de transport </label>
+                                <label class="form-label fw-500">Type de transport *</label>
                                 {{ form.transport_type }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-500">Places disponibles </label>
+                                <label class="form-label fw-500">Places disponibles *</label>
                                 {{ form.available_seats }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-500">Prix par place (DT) </label>
+                                <label class="form-label fw-500">Prix par place (DT) *</label>
                                 {{ form.price_per_seat }}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Options Section -->
+                    <!-- Options -->
                     <div class="form-section">
                         <h5 class="section-title">
                             <i class="bi bi-gear me-2"></i>Options
@@ -108,7 +217,7 @@
                         </div>
                     </div>
 
-                    <!-- Description Section -->
+                    <!-- Description -->
                     <div class="form-section">
                         <h5 class="section-title">
                             <i class="bi bi-chat-text me-2"></i>Description
@@ -119,7 +228,7 @@
                             préférences, etc.)</small>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Bouton unique -->
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-primary btn-lg px-5">
                             <i class="bi bi-check-circle me-2"></i>Publier mon trajet
@@ -177,6 +286,7 @@
 
     .fw-500 {
         font-weight: 500;
+        display: block;
     }
 
     .form-control,
@@ -198,8 +308,6 @@
     }
 
     .form-check-input {
-        width: 3rem;
-        height: 1.5rem;
         cursor: pointer;
     }
 
@@ -210,7 +318,6 @@
 
     .form-check-label {
         cursor: pointer;
-        margin-left: 0.5rem;
     }
 
     .btn-primary {
@@ -220,6 +327,7 @@
         padding: 0.75rem 3rem;
         font-weight: 600;
         font-size: 1.1rem;
+        transition: all 0.3s;
     }
 
     .btn-primary:hover {
@@ -258,10 +366,127 @@
         font-weight: 600;
     }
 
+    #recurring-fields,
+    #single-fields {
+        transition: all 0.3s ease;
+    }
+
     @media (max-width: 768px) {
         .create-trip-card {
             padding: 1.5rem;
         }
     }
 </style>
+
+<script src="{% static 'js/governorate_addresses.js' %}"></script>
+
+<!-- Google Maps Scripts -->
+{% if GOOGLE_MAPS_API_KEY %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
+<script>
+    function initAutocomplete() {
+        // Autocomplete objects
+        const fields = [
+            { id: 'id_departure_address', lat: 'id_departure_lat', lng: 'id_departure_lng' },
+            { id: 'id_arrival_address', lat: 'id_arrival_lat', lng: 'id_arrival_lng' }
+        ];
+
+        // For Recurring fields too if they have different IDs
+        const recurringFields = [
+            { id: 'id_recurring_departure_address', lat: 'id_departure_lat', lng: 'id_departure_lng' },
+            { id: 'id_recurring_arrival_address', lat: 'id_arrival_lat', lng: 'id_arrival_lng' }
+        ];
+
+        const allFields = [...fields];
+
+        // Add recurring fields if they exist (they share the same lat/lng hidden inputs in my form implementation)
+        // Wait, I should check the IDs in forms.py. 
+        // In forms.py: 
+        // TripCreateForm: departure_address has id_departure_address
+        // RecurringTripForm: departure_address has no specific id, so it's probably id_departure_address as well 
+        // actually standard Django is id_<fieldname>.
+
+        allFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (!input) return;
+
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: "tn" },
+                fields: ["address_components", "geometry"],
+                types: ["address"]
+            });
+
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    return;
+                }
+
+                document.getElementById(field.lat).value = place.geometry.location.lat();
+                document.getElementById(field.lng).value = place.geometry.location.lng();
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initAutocomplete);
+</script>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const isRecurringCheckbox = document.getElementById('is_recurring');
+        const tripTypeInput = document.getElementById('trip_type');
+        const singleFields = document.getElementById('single-fields');
+        const recurringFields = document.getElementById('recurring-fields');
+        const daysSection = document.getElementById('days-section');
+        const frequencySelect = document.querySelector('#id_frequency');
+
+        // Basculer entre trajet simple et récurrent
+        isRecurringCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                // Mode récurrent
+                tripTypeInput.value = 'recurring';
+                singleFields.style.display = 'none';
+                recurringFields.style.display = 'block';
+                disableFormSection(singleFields);
+                enableFormSection(recurringFields);
+            } else {
+                // Mode simple
+                tripTypeInput.value = 'single';
+                singleFields.style.display = 'block';
+                recurringFields.style.display = 'none';
+                disableFormSection(recurringFields);
+                enableFormSection(singleFields);
+            }
+        });
+
+        // Gérer l'affichage des jours pour les trajets hebdomadaires
+        if (frequencySelect) {
+            frequencySelect.addEventListener('change', function () {
+                if (this.value === 'weekly') {
+                    daysSection.style.display = 'block';
+                } else {
+                    daysSection.style.display = 'none';
+                }
+            });
+        }
+
+        function disableFormSection(section) {
+            const inputs = section.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+        }
+
+        function enableFormSection(section) {
+            const inputs = section.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+        }
+
+        // Initialize state
+        isRecurringCheckbox.dispatchEvent(new Event('change'));
+    });
+</script>
 {% endblock %}

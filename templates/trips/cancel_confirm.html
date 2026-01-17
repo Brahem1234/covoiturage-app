@@ -36,7 +36,7 @@
                                 </div>
                                 <div class="col-6 mb-2">
                                     <small class="text-muted">Réservations actives</small>
-                                    <div>{{ trip.bookings.filter(status__in == ['pending','confirmed']).count }}</div>
+                                    <div>{{ active_bookings_count }}</div>
                                 </div>
                                 <div class="col-6 mb-2">
                                     <small class="text-muted">Prix</small>
