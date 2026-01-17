@@ -19,11 +19,10 @@
                         </div>
                         <div class="col-md-1">
                             <select name="radius" class="form-select">
-                                <option value="5" {% if request.GET.radius=='5' or not request.GET.radius %}selected{%
-                                    endif %}>5 km</option>
-                                <option value="10" {% if request.GET.radius=='10' %}selected{% endif %}>10 km</option>
-                                <option value="20" {% if request.GET.radius=='20' %}selected{% endif %}>20 km</option>
-                                <option value="50" {% if request.GET.radius=='50' %}selected{% endif %}>50 km</option>
+                                <option value="5" {% if request.GET.radius == '5' or not request.GET.radius %}selected{% endif %}>5 km</option>
+                                <option value="10" {% if request.GET.radius == '10' %}selected{% endif %}>10 km</option>
+                                <option value="20" {% if request.GET.radius == '20' %}selected{% endif %}>20 km</option>
+                                <option value="50" {% if request.GET.radius == '50' %}selected{% endif %}>50 km</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -43,13 +42,13 @@
                         <div class="col-md-2">
                             <select name="transport_type" class="form-select">
                                 <option value="">Tous</option>
-                                <option value="car" {% if request.GET.transport_type=='car' %}selected{% endif %}>
+                                <option value="car" {% if request.GET.transport_type == 'car' %}selected{% endif %}>
                                     Voiture</option>
-                                <option value="bus" {% if request.GET.transport_type=='bus' %}selected{% endif %}>Bus
+                                <option value="bus" {% if request.GET.transport_type == 'bus' %}selected{% endif %}>Bus
                                 </option>
-                                <option value="train" {% if request.GET.transport_type=='train' %}selected{% endif %}>
+                                <option value="train" {% if request.GET.transport_type == 'train' %}selected{% endif %}>
                                     Train</option>
-                                <option value="van" {% if request.GET.transport_type=='van' %}selected{% endif %}>Van
+                                <option value="van" {% if request.GET.transport_type == 'van' %}selected{% endif %}>Van
                                 </option>
                             </select>
                         </div>
