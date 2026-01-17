@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil de {{ profile_user.username }} - TAWSILA24{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar: User Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body text-center p-4">
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if profile_user.profile_picture %}
+                        <img src="{{ profile_user.profile_picture.url }}" class="rounded-circle shadow-sm" width="120"
+                            height="120" style="object-fit: cover; border: 4px solid #fff;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm mx-auto"
+                            style="width: 120px; height: 120px; font-size: 3rem;">
+                            {{ profile_user.username|make_list|first|upper }}
+                        </div>
+                        {% endif %}
+                        {% if profile_user.is_verified %}
+                        <div class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle d-flex align-items-center justify-content-center border border-white"
+                            style="width: 32px; height: 32px;" title="Profil vérifié">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <h4 class="fw-bold mb-1">{{ profile_user.get_full_name|default:profile_user.username }}</h4>
+                    <p class="text-muted small mb-3">Membre depuis {{ profile_user.date_joined|date:"F Y" }}</p>
+
+                    <div class="d-flex justify-content-center gap-3 mb-4">
+                        <div class="text-center">
+                            <div class="fw-bold h5 mb-0">{{ profile_user.average_rating }}</div>
+                            <small class="text-muted">Note</small>
+                        </div>
+                        <div class="vr"></div>
+                        <div class="text-center">
+                            <div class="fw-bold h5 mb-0">{{ profile_user.review_count }}</div>
+                            <small class="text-muted">Avis</small>
+                        </div>
+                        <div class="vr"></div>
+                        <div class="text-center">
+                            <div class="fw-bold h5 mb-0">{{ profile_user.trips_count }}</div>
+                            <small class="text-muted">Trajets</small>
+                        </div>
+                    </div>
+
+                    {% if profile_user != request.user %}
+                    <a href="{% url 'send_message' profile_user.id %}" class="btn btn-primary w-100 rounded-pill py-2">
+                        <i class="bi bi-envelope me-2"></i>Contacter
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">À propos</h6>
+                    <p class="text-muted small mb-0">{{ profile_user.bio|default:"Aucune description fournie." }}</p>
+                </div>
+            </div>
+
+            {% if profile_user.car_model %}
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Véhicule</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-light p-2 rounded">
+                            <i class="bi bi-car-front-fill text-primary h4 mb-0"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold small">{{ profile_user.car_model }}</div>
+                            <div class="text-muted smaller">{{ profile_user.car_color }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Content: Reviews -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Derniers avis ({{ reviews.count }})</h5>
+
+                    {% if reviews %}
+                    <div class="d-flex flex-column gap-4">
+                        {% for review in reviews %}
+                        <div class="pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold">{{ review.author.username }}</span>
+                                    <div class="text-warning">
+                                        {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %} <i class="bi bi-star-fill"></i>
+                                            {% else %}
+                                            <i class="bi bi-star"></i>
+                                            {% endif %}
+                                            {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="text-muted mb-0">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-chat-left-dots display-1 text-light"></i>
+                        <p class="text-muted mt-3">Aucun avis pour le moment.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

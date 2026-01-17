@@ -4,12 +4,6 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
 from datetime import date
-from django.conf import settings
-
-from .models import Trip
-from .forms import TripSearchForm, TripCreateForm, RecurringTripForm
-from .tasks import generate_recurring_trips
-from apps.notifications.utils import create_notification
 
 def home(request):
     now = timezone.now()
@@ -46,30 +40,19 @@ def search_trips(request):
         transport_type = form.cleaned_data.get('transport_type')
         
         if departure:
-            trips = trips.filter(departure_city=departure)
+            trips = trips.filter(departure_city__icontains=departure)
         if arrival:
             trips = trips.filter(arrival_city=arrival)
         if date_trip:
             trips = trips.filter(departure_date=date_trip)
         if transport_type:
             trips = trips.filter(transport_type=transport_type)
-            
-    # Apply sorting logic
-    sort = request.GET.get('sort', 'earliest')
-    if sort == 'price_asc':
-        trips = trips.order_by('price_per_seat', 'departure_date', 'departure_time')
-    elif sort == 'earliest':
-        trips = trips.order_by('departure_date', 'departure_time')
-    elif sort == 'closest':
-        # Default to earliest for now (no coordinates/distance logic yet)
-        trips = trips.order_by('departure_date', 'departure_time')
-    elif sort == 'shortest':
-        # Default to earliest for now (no duration logic yet)
-        trips = trips.order_by('departure_date', 'departure_time')
-    else:
-        trips = trips.order_by('departure_date', 'departure_time')
-
-    return render(request, 'trips/search.html', {'form': form, 'trips': trips})
+    
+    context = {
+        'form': form,
+        'trips': trips,
+    }
+    return render(request, 'trips/search.html', context)
 
 @login_required
 def create_trip(request):
@@ -80,60 +63,25 @@ def create_trip(request):
         trip_type = request.GET.get('type', 'single')
 
     if request.method == 'POST':
-        if trip_type == 'recurring':
-            # Gérer la création d'un trajet récurrent
-            form = RecurringTripForm(request.POST)
-            # Create dummy Single form for context safety (unbound)
-            single_form = TripCreateForm() 
-            
-            if form.is_valid():
-                recurring = form.save(commit=False)
-                recurring.driver = request.user
-                recurring.save()
-                
-                # Déclencher la génération immédiate des trajets
-                generate_recurring_trips.delay()
-                
-                messages.success(request, 'Votre trajet récurrent a été créé ! Les trajets pour les 30 prochains jours sont en cours de génération.')
-                return redirect('my_trips')
-        else:
-            # Gérer la création d'un trajet simple
-            form = TripCreateForm(request.POST)
-            # Create dummy Recurring form for context
-            recurring_form = RecurringTripForm()
-            
-            if form.is_valid():
-                trip = form.save(commit=False)
-                trip.driver = request.user
-                trip.save()
-                messages.success(request, 'Votre trajet a été publié avec succès!')
-                return redirect('trip_detail', pk=trip.pk)
+        form = TripCreateForm(request.POST)
+        if form.is_valid():
+            trip = form.save(commit=False)
+            trip.driver = request.user
+            trip.save()
+            messages.success(request, 'Votre trajet a été publié avec succès!')
+            return redirect('trip_detail', pk=trip.pk)
     else:
         # GET request
         form = TripCreateForm()
-        recurring_form = RecurringTripForm()
-
-    # Prepare context correctly for the template
-    if request.method == 'POST':
-        if trip_type == 'recurring':
-            recurring_form = form # The bound recurring form
-            form = TripCreateForm() # Empty single form
-        else:
-            # form is bound single form
-            recurring_form = RecurringTripForm() # Empty recurring form
-
-    context = {
-        'form': form,
-        'recurring_form': recurring_form,
-        'trip_type': trip_type,
-        'GOOGLE_MAPS_API_KEY': getattr(settings, 'GOOGLE_MAPS_API_KEY', '')
-    }
     
-    return render(request, 'trips/create.html', context)
+    return render(request, 'trips/create.html', {'form': form})
 
 def trip_detail(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
-    return render(request, 'trips/detail.html', {'trip': trip})
+    return render(request, 'trips/detail.html', {
+        'trip': trip,
+        'GOOGLE_MAPS_API_KEY': getattr(settings, 'GOOGLE_MAPS_API_KEY', '')
+    })
 
 @login_required
 def my_trips(request):

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -38,18 +38,3 @@ def profile(request):
         form = UserProfileForm(instance=request.user)
     
     return render(request, 'users/profile.html', {'form': form})
-
-@login_required
-def verify_identity(request):
-    if request.method == 'POST':
-        form = IdentityVerificationForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.verification_status = 'pending'
-            user.save()
-            messages.success(request, 'Votre document a été soumis pour vérification. Le processus peut prendre jusqu\'à 24h.')
-            return redirect('profile')
-    else:
-        form = IdentityVerificationForm(instance=request.user)
-    
-    return render(request, 'users/verify_identity.html', {'form': form})

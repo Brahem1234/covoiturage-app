@@ -76,6 +76,8 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-500">Adresse de départ *</label>
                                 {{ form.departure_address }}
+                                {{ form.departure_lat }}
+                                {{ form.departure_lng }}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-500">Gouvernorat d'arrivée *</label>
@@ -84,6 +86,12 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-500">Adresse d'arrivée *</label>
                                 {{ form.arrival_address }}
+                                {{ form.arrival_lat }}
+                                {{ form.arrival_lng }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-500">Pays *</label>
+                                {{ form.country }}
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label fw-500">Pays *</label>
@@ -94,66 +102,17 @@
 
                     <!-- Date et heure / Récurrence -->
                     <div class="form-section">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="section-title mb-0">
-                                <i class="bi bi-calendar-event me-2"></i>Date et heure
-                            </h5>
-                            <div class="form-check form-switch">
-                                {% if trip_type == 'recurring' %}
-                                <input class="form-check-input" type="checkbox" id="is_recurring" checked
-                                    style="width: 3rem; height: 1.5rem; cursor: pointer;">
-                                {% else %}
-                                <input class="form-check-input" type="checkbox" id="is_recurring"
-                                    style="width: 3rem; height: 1.5rem; cursor: pointer;">
-                                {% endif %}
-                                <label class="form-check-label ms-2" for="is_recurring"
-                                    style="cursor: pointer; font-weight: 500;">
-                                    <i class="bi bi-repeat me-1"></i>Trajet récurrent
-                                </label>
+                        <h5 class="section-title">
+                            <i class="bi bi-calendar-event me-2"></i>Date et heure
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-500">Date de départ </label>
+                                {{ form.departure_date }}
                             </div>
-                        </div>
-
-                        <!-- Champs trajet simple -->
-                        <div id="single-fields">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-500">Date de départ *</label>
-                                    {{ form.departure_date }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-500">Heure de départ *</label>
-                                    {{ form.departure_time }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Champs trajet récurrent -->
-                        <div id="recurring-fields" style="display: none;">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-500">Heure de départ *</label>
-                                    {{ recurring_form.departure_time }}
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-500">Fréquence *</label>
-                                    {{ recurring_form.frequency }}
-                                </div>
-                                <div class="col-md-4"></div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-500">Date de début *</label>
-                                    {{ recurring_form.start_date }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-500">Date de fin *</label>
-                                    {{ recurring_form.end_date }}
-                                </div>
-                            </div>
-
-                            <div id="days-section" class="mt-4 p-3 bg-light rounded-4" style="display:none;">
-                                <label class="form-label fw-bold mb-3">Sélectionnez les jours :</label>
-                                <div class="d-flex flex-wrap gap-3">
-                                    {{ recurring_form.days_of_week_list }}
-                                </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-500">Heure de départ </label>
+                                {{ form.departure_time }}
                             </div>
                         </div>
                     </div>
@@ -277,6 +236,7 @@
 
     .fw-500 {
         font-weight: 500;
+        display: block;
     }
 
     .form-control,
@@ -367,64 +327,4 @@
         }
     }
 </style>
-
-<script src="{% static 'js/governorate_addresses.js' %}"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const isRecurringCheckbox = document.getElementById('is_recurring');
-        const tripTypeInput = document.getElementById('trip_type');
-        const singleFields = document.getElementById('single-fields');
-        const recurringFields = document.getElementById('recurring-fields');
-        const daysSection = document.getElementById('days-section');
-        const frequencySelect = document.querySelector('#id_frequency');
-
-        // Basculer entre trajet simple et récurrent
-        isRecurringCheckbox.addEventListener('change', function () {
-            if (this.checked) {
-                // Mode récurrent
-                tripTypeInput.value = 'recurring';
-                singleFields.style.display = 'none';
-                recurringFields.style.display = 'block';
-                disableFormSection(singleFields);
-                enableFormSection(recurringFields);
-            } else {
-                // Mode simple
-                tripTypeInput.value = 'single';
-                singleFields.style.display = 'block';
-                recurringFields.style.display = 'none';
-                disableFormSection(recurringFields);
-                enableFormSection(singleFields);
-            }
-        });
-
-        // Gérer l'affichage des jours pour les trajets hebdomadaires
-        if (frequencySelect) {
-            frequencySelect.addEventListener('change', function () {
-                if (this.value === 'weekly') {
-                    daysSection.style.display = 'block';
-                } else {
-                    daysSection.style.display = 'none';
-                }
-            });
-        }
-
-        function disableFormSection(section) {
-            const inputs = section.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.disabled = true;
-            });
-        }
-
-        function enableFormSection(section) {
-            const inputs = section.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.disabled = false;
-            });
-        }
-
-        // Initialize state
-        isRecurringCheckbox.dispatchEvent(new Event('change'));
-    });
-</script>
 {% endblock %}

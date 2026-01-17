@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Avg
 from django.db import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
@@ -55,3 +56,15 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.username
+    @property
+    def average_rating(self):
+        avg = self.reviews_received.aggregate(Avg('rating'))['rating__avg']
+        return round(avg, 1) if avg else 0
+
+    @property
+    def review_count(self):
+        return self.reviews_received.count()
+
+    @property
+    def trips_count(self):
+        return self.trips_driven.count()
