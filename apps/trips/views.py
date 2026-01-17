@@ -3,7 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
+from django.conf import settings
 from datetime import date
+from .models import Trip
+from .forms import TripSearchForm, TripCreateForm
+from apps.notifications.utils import create_notification
 
 def home(request):
     now = timezone.now()

@@ -12,7 +12,6 @@ def validate_future_date(value):
         raise ValidationError("La date de départ ne peut pas être dans le passé.")
 
 class Trip(models.Model):
-    recurring_pattern = models.ForeignKey('RecurringTrip', on_delete=models.SET_NULL, null=True, blank=True, related_name='instances')
     TRANSPORT_TYPE_CHOICES = [
         ('car', 'Voiture'),
         ('bus', 'Bus'),

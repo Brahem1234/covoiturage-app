@@ -27,11 +27,3 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
-
-  build-docker:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)

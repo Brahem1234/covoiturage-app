@@ -1,5 +1,5 @@
 from django import forms
-from .models import Trip, RecurringTrip
+from .models import Trip
 from .choices import GOVERNORATE_CHOICES, GOVERNORATE_ADDRESSES
 
 class TripCreateForm(forms.ModelForm):
