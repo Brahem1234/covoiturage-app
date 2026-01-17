@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Vérification d'identité - TAWSILA24{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="verification-card">
+                <div class="text-center mb-4">
+                    <div class="verification-icon mb-3">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h2 class="fw-bold">Vérifiez votre identité</h2>
+                    <p class="text-muted">Renforcez la confiance de la communauté en vérifiant votre profil.</p>
+                </div>
+
+                {% if user.verification_status == 'pending' %}
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                    <div>
+                        Votre demande est en cours de traitement. Nous vous informerons dès qu'elle sera validée.
+                    </div>
+                </div>
+                {% elif user.verification_status == 'approved' %}
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="bi bi-patch-check-fill me-2 fs-4"></i>
+                    <div>
+                        Félicitations ! Votre profil est déjà vérifié.
+                    </div>
+                </div>
+                {% else %}
+                <form method="post" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        {{ form.identity_document_type|as_crispy_field }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.identity_document|as_crispy_field }}
+                    </div>
+
+                    <div class="info-box mb-4">
+                        <h6 class="fw-bold small mb-2"><i class="bi bi-lightbulb me-2"></i>Conseils :</h6>
+                        <ul class="small text-muted mb-0">
+                            <li>Assurez-vous que tous les coins du document sont visibles.</li>
+                            <li>La photo doit être nette et sans reflets.</li>
+                            <li>Le nom sur le document doit correspondre à votre profil.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-600">
+                            Soumettre pour vérification
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
+                <div class="mt-4 text-center">
+                    <a href="{% url 'profile' %}" class="text-decoration-none transition-link">
+                        <i class="bi bi-arrow-left me-1"></i>Retour au profil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .verification-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .verification-icon {
+        width: 80px;
+        height: 80px;
+        background: #e3f2fd;
+        color: #00aff5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto;
+    }
+
+    .info-box {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border-left: 4px solid #dee2e6;
+    }
+
+    .btn-primary {
+        background: #00aff5;
+        border: none;
+        padding: 0.8rem;
+    }
+
+    .btn-primary:hover {
+        background: #0099d6;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 175, 245, 0.3);
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+
+    .transition-link {
+        color: #6c757d;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .transition-link:hover {
+        color: #00aff5;
+    }
+</style>
+{% endblock %}

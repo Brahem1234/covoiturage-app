@@ -1,56 +1,135 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
-from .models import Trip
-from .forms import TripSearchForm, TripCreateForm
-
+from django.db.models import Q, Count
+from django.utils import timezone
 from datetime import date
+from django.conf import settings
+
+from .models import Trip
+from .forms import TripSearchForm, TripCreateForm, RecurringTripForm
+from .tasks import generate_recurring_trips
+from apps.notifications.utils import create_notification
 
 def home(request):
-    recent_trips = Trip.objects.filter(status='active').exclude(id__in=[21, 22, 24]).order_by('-created_at')[:5]
+    now = timezone.now()
+    current_date = now.date()
+    current_time = now.time()
+    
+    # "Popular" trips: prioritized by number of confirmed bookings, then random/shuffled
+    # This prevents brand new empty trips from appearing at the top immediately.
+    popular_trips = Trip.objects.filter(status='active').exclude(id__in=[21, 22, 24]) \
+        .filter(Q(departure_date__gt=current_date) | Q(departure_date=current_date, departure_time__gte=current_time)) \
+        .annotate(booking_count=Count('bookings')) \
+        .order_by('-booking_count', '?')[:4]
+    
     today = date.today().isoformat()
-    return render(request, 'trips/home.html', {'recent_trips': recent_trips, 'today': today})
+    return render(request, 'trips/home.html', {'popular_trips': popular_trips, 'today': today})
 
 def search_trips(request):
     form = TripSearchForm(request.GET or None)
-    trips = Trip.objects.filter(status='active')
+    
+    # Filter for active trips that haven't passed yet
+    now = timezone.now()
+    current_date = now.date()
+    current_time = now.time()
+    
+    trips = Trip.objects.filter(status='active').filter(
+        Q(departure_date__gt=current_date) | 
+        Q(departure_date=current_date, departure_time__gte=current_time)
+    ).select_related('driver')
     
     if form.is_valid():
         departure = form.cleaned_data.get('departure_city')
         arrival = form.cleaned_data.get('arrival_city')
-        date = form.cleaned_data.get('departure_date')
+        date_trip = form.cleaned_data.get('departure_date')
         transport_type = form.cleaned_data.get('transport_type')
         
         if departure:
-            trips = trips.filter(departure_city__icontains=departure)
+            trips = trips.filter(departure_city=departure)
         if arrival:
-            trips = trips.filter(arrival_city__icontains=arrival)
-        if date:
-            trips = trips.filter(departure_date=date)
+            trips = trips.filter(arrival_city=arrival)
+        if date_trip:
+            trips = trips.filter(departure_date=date_trip)
         if transport_type:
             trips = trips.filter(transport_type=transport_type)
-    
-    context = {
-        'form': form,
-        'trips': trips,
-    }
-    return render(request, 'trips/search.html', context)
+            
+    # Apply sorting logic
+    sort = request.GET.get('sort', 'earliest')
+    if sort == 'price_asc':
+        trips = trips.order_by('price_per_seat', 'departure_date', 'departure_time')
+    elif sort == 'earliest':
+        trips = trips.order_by('departure_date', 'departure_time')
+    elif sort == 'closest':
+        # Default to earliest for now (no coordinates/distance logic yet)
+        trips = trips.order_by('departure_date', 'departure_time')
+    elif sort == 'shortest':
+        # Default to earliest for now (no duration logic yet)
+        trips = trips.order_by('departure_date', 'departure_time')
+    else:
+        trips = trips.order_by('departure_date', 'departure_time')
+
+    return render(request, 'trips/search.html', {'form': form, 'trips': trips})
 
 @login_required
 def create_trip(request):
+    # Determine type from POST or GET
     if request.method == 'POST':
-        form = TripCreateForm(request.POST)
-        if form.is_valid():
-            trip = form.save(commit=False)
-            trip.driver = request.user
-            trip.save()
-            messages.success(request, 'Votre trajet a été publié avec succès!')
-            return redirect('trip_detail', pk=trip.pk)
+        trip_type = request.POST.get('trip_type', 'single')
     else:
+        trip_type = request.GET.get('type', 'single')
+
+    if request.method == 'POST':
+        if trip_type == 'recurring':
+            # Gérer la création d'un trajet récurrent
+            form = RecurringTripForm(request.POST)
+            # Create dummy Single form for context safety (unbound)
+            single_form = TripCreateForm() 
+            
+            if form.is_valid():
+                recurring = form.save(commit=False)
+                recurring.driver = request.user
+                recurring.save()
+                
+                # Déclencher la génération immédiate des trajets
+                generate_recurring_trips.delay()
+                
+                messages.success(request, 'Votre trajet récurrent a été créé ! Les trajets pour les 30 prochains jours sont en cours de génération.')
+                return redirect('my_trips')
+        else:
+            # Gérer la création d'un trajet simple
+            form = TripCreateForm(request.POST)
+            # Create dummy Recurring form for context
+            recurring_form = RecurringTripForm()
+            
+            if form.is_valid():
+                trip = form.save(commit=False)
+                trip.driver = request.user
+                trip.save()
+                messages.success(request, 'Votre trajet a été publié avec succès!')
+                return redirect('trip_detail', pk=trip.pk)
+    else:
+        # GET request
         form = TripCreateForm()
+        recurring_form = RecurringTripForm()
+
+    # Prepare context correctly for the template
+    if request.method == 'POST':
+        if trip_type == 'recurring':
+            recurring_form = form # The bound recurring form
+            form = TripCreateForm() # Empty single form
+        else:
+            # form is bound single form
+            recurring_form = RecurringTripForm() # Empty recurring form
+
+    context = {
+        'form': form,
+        'recurring_form': recurring_form,
+        'trip_type': trip_type,
+        'GOOGLE_MAPS_API_KEY': getattr(settings, 'GOOGLE_MAPS_API_KEY', '')
+    }
     
-    return render(request, 'trips/create.html', {'form': form})
+    return render(request, 'trips/create.html', context)
 
 def trip_detail(request, pk):
     trip = get_object_or_404(Trip, pk=pk)
@@ -58,7 +137,7 @@ def trip_detail(request, pk):
 
 @login_required
 def my_trips(request):
-    trips = Trip.objects.filter(driver=request.user)
+    trips = Trip.objects.filter(driver=request.user).order_by('-departure_date', '-departure_time')
     return render(request, 'trips/my_trips.html', {'trips': trips})
 
 @login_required
@@ -74,13 +153,18 @@ def edit_trip(request, pk):
     else:
         form = TripCreateForm(instance=trip)
     
-    return render(request, 'trips/edit.html', {'form': form, 'trip': trip})
+    context = {
+        'form': form,
+        'trip': trip,
+        'GOOGLE_MAPS_API_KEY': getattr(settings, 'GOOGLE_MAPS_API_KEY', '')
+    }
+    return render(request, 'trips/edit.html', context)
 
 @login_required
 def delete_trip(request, pk):
     trip = get_object_or_404(Trip, pk=pk, driver=request.user)
     
-    # Vérifier s'il y a des réservations
+    # Vérifier s'il y a des réservations actives
     if trip.bookings.filter(status__in=['pending', 'confirmed']).exists():
         messages.error(request, 'Impossible de supprimer ce trajet car il y a des réservations actives.')
         return redirect('my_trips')
@@ -91,8 +175,6 @@ def delete_trip(request, pk):
         return redirect('my_trips')
     
     return render(request, 'trips/delete_confirm.html', {'trip': trip})
-
-from apps.notifications.utils import create_notification
 
 @login_required
 def cancel_trip(request, pk):

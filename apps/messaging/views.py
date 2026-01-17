@@ -22,6 +22,17 @@ def send_message(request, recipient_id):
             message.sender = request.user
             message.recipient = recipient
             message.save()
+            
+            # Notification au destinataire
+            from apps.notifications.utils import create_notification
+            create_notification(
+                recipient=recipient,
+                notification_type='new_message',
+                title='Nouveau message',
+                message=f"Vous avez reçu un nouveau message de {request.user.username}.",
+                link=f"/messages/{message.id}/"
+            )
+            
             messages.success(request, 'Message envoyé avec succès !')
             return redirect('inbox')
     else:

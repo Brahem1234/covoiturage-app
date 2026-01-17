@@ -50,3 +50,15 @@ class UserProfileForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'rows': 4}),
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
         }
+
+class IdentityVerificationForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['identity_document_type', 'identity_document']
+        labels = {
+            'identity_document_type': 'Type de document',
+            'identity_document': 'Document d\'identité (Image)',
+        }
+        help_texts = {
+            'identity_document': 'Veuillez télécharger une photo claire de votre pièce d\'identité.',
+        }
