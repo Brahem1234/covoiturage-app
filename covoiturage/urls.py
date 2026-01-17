@@ -14,8 +14,6 @@ urlpatterns = [
     path('payments/', include('apps.payments.urls')),
     path('notifications/', include('apps.notifications.urls')),
     
-    # API endpoints
-    path('api/', include('covoiturage.api_urls')),
 ]
 
 if settings.DEBUG:
