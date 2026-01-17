@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, api_views
+from . import views
 
 urlpatterns = [
     path('search/', views.search_trips, name='search_trips'),
@@ -11,6 +11,4 @@ urlpatterns = [
     path('<int:pk>/edit/', views.edit_trip, name='edit_trip'),
     path('<int:pk>/delete/', views.delete_trip, name='delete_trip'),
     path('<int:pk>/cancel/', views.cancel_trip, name='cancel_trip'),
-    # API endpoint for governorate addresses
-    path('api/addresses/<str:governorate_code>/', api_views.get_governorate_addresses, name='get_governorate_addresses'),
 ]
