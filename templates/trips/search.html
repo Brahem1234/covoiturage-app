@@ -34,13 +34,13 @@
                         <div class="col-md-2">
                             <select name="transport_type" class="form-select">
                                 <option value="">Tous</option>
-                                <option value="car" {% if request.GET.transport_type=='car' %}selected{% endif %}>
+                                <option value="car" {% if request.GET.transport_type == 'car' %}selected{% endif %}>
                                     Voiture</option>
-                                <option value="bus" {% if request.GET.transport_type=='bus' %}selected{% endif %}>Bus
+                                <option value="bus" {% if request.GET.transport_type == 'bus' %}selected{% endif %}>Bus
                                 </option>
-                                <option value="train" {% if request.GET.transport_type=='train' %}selected{% endif %}>
+                                <option value="train" {% if request.GET.transport_type == 'train' %}selected{% endif %}>
                                     Train</option>
-                                <option value="van" {% if request.GET.transport_type=='van' %}selected{% endif %}>Van
+                                <option value="van" {% if request.GET.transport_type == 'van' %}selected{% endif %}>Van
                                 </option>
                             </select>
                         </div>
@@ -115,8 +115,7 @@
             <div class="col-12">
                 <h2 class="h5 mb-0">
                     {% if trips %}
-                    <strong>{{ trips|length }}</strong> trajet{{ trips|length|pluralize }} disponible{{
-                    trips|length|pluralize }}
+                    <strong>{{ trips|length }}</strong> trajet{{ trips|length|pluralize }} disponible{{trips|length|pluralize }}
                     {% else %}
                     Aucun trajet trouvé
                     {% endif %}
@@ -182,8 +181,7 @@
                                     </span>
                                     {% endif %}
                                     <span class="badge bg-light text-dark">
-                                        <i class="bi bi-people me-1"></i>{{ trip.available_seats }} place{{
-                                        trip.available_seats|pluralize }}
+                                        <i class="bi bi-people me-1"></i>{{ trip.available_seats }} place{{trip.available_seats|pluralize }}
                                     </span>
                                 </div>
                             </div>
